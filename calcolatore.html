@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calcolatore di Rendimento per Investimenti Immobiliari</title>
+    <!-- Link al CDN di Tailwind CSS per lo stile -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Stili personalizzati per migliorare l'aspetto -->
+    <style>
+        body {
+            background-color: #f7fafc; /* Sfondo grigio chiaro per la pagina */
+        }
+        .calculator-container {
+            max-width: 600px;
+            margin: 4rem auto; /* Centra il calcolatore verticalmente e orizzontalmente */
+        }
+        /* Stile per i radio button personalizzati */
+        .tax-radio:checked + label {
+            background-color: #5A8A7B;
+            color: white;
+            border-color: #5A8A7B;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="calculator-container">
+        <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-200">
+            <h4 class="text-xl font-semibold mb-4 text-center">Calcolatore Interattivo di Rendimento</h4>
+            
+            <!-- Sezione Parametri Principali -->
+            <div class="space-y-4">
+                <div>
+                    <label for="investimento" class="block text-sm font-medium text-gray-700">Investimento Totale (€)</label>
+                    <input type="number" id="investimento" value="95220" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#A87B5A] focus:ring-[#A87B5A] sm:text-sm">
+                </div>
+                 <div>
+                    <label for="adr" class="block text-sm font-medium text-gray-700">Tariffa Media Giornaliera (€)</label>
+                    <input type="range" id="adr" min="90" max="160" value="125" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                    <div class="text-right text-sm font-medium text-[#5A8A7B]"><span id="adrVal">125</span> €</div>
+                </div>
+                <div>
+                    <label for="occupazione" class="block text-sm font-medium text-gray-700">Tasso di Occupazione Previsto (%)</label>
+                    <input type="range" id="occupazione" min="30" max="85" value="65" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                    <div class="text-right text-sm font-medium text-[#5A8A7B]"><span id="occupazioneVal">65</span>%</div>
+                </div>
+                <div>
+                    <label for="soggiornoMedio" class="block text-sm font-medium text-gray-700">Soggiorno Medio (giorni)</label>
+                    <input type="number" id="soggiornoMedio" value="3" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm">
+                </div>
+            </div>
+
+            <!-- Sezione Costi Variabili -->
+            <div class="mt-6 pt-6 border-t">
+                <h5 class="text-lg font-semibold mb-4 text-center">Costi Variabili</h5>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="commissioni" class="block text-sm font-medium text-gray-700">Commissioni OTA (%)</label>
+                        <input type="number" id="commissioni" value="15" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm">
+                    </div>
+                    <div>
+                        <label for="pulizia" class="block text-sm font-medium text-gray-700">Costo Pulizia per Soggiorno (€)</label>
+                        <input type="number" id="pulizia" value="50" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label for="utenzeNotte" class="block text-sm font-medium text-gray-700">Costo Utenze per Notte Occupata (€)</label>
+                        <input type="number" id="utenzeNotte" value="15" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sezione Costi Fissi -->
+            <div class="mt-6 pt-6 border-t">
+                <h5 class="text-lg font-semibold mb-4 text-center">Costi Fissi Annuali</h5>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="tari" class="block text-sm font-medium text-gray-700">TARI (€)</label>
+                        <input type="number" id="tari" value="300" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm">
+                    </div>
+                    <div>
+                        <label for="condominio" class="block text-sm font-medium text-gray-700">Condominio (€)</label>
+                        <input type="number" id="condominio" value="600" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm">
+                    </div>
+                    <div>
+                        <label for="manutenzione" class="block text-sm font-medium text-gray-700">Manutenzione (€)</label>
+                        <input type="number" id="manutenzione" value="500" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm">
+                    </div>
+                    <div>
+                        <label for="altriCostiFissi" class="block text-sm font-medium text-gray-700">Altri Costi Fissi (€)</label>
+                        <input type="number" id="altriCostiFissi" value="200" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sezione Regime Fiscale -->
+            <div class="mt-6 pt-6 border-t">
+                <h5 class="text-lg font-semibold mb-4 text-center">Regime Fiscale</h5>
+                <div class="grid grid-cols-3 gap-2 rounded-lg bg-gray-100 p-1">
+                    <input type="radio" name="tax_regime" id="cedolare" value="cedolare" class="hidden tax-radio" checked>
+                    <label for="cedolare" class="text-center text-sm p-2 rounded-md cursor-pointer border border-gray-200 transition">Cedolare Secca</label>
+                    
+                    <input type="radio" name="tax_regime" id="forfettario" value="forfettario" class="hidden tax-radio">
+                    <label for="forfettario" class="text-center text-sm p-2 rounded-md cursor-pointer border border-gray-200 transition">P.IVA Forfettaria</label>
+                    
+                    <input type="radio" name="tax_regime" id="ordinario" value="ordinario" class="hidden tax-radio">
+                    <label for="ordinario" class="text-center text-sm p-2 rounded-md cursor-pointer border border-gray-200 transition">P.IVA Ordinaria</label>
+                </div>
+                <div id="tax_params" class="mt-4 space-y-4">
+                    <div id="cedolare_params">
+                        <label for="aliquotaCedolare" class="block text-sm font-medium text-gray-700">Aliquota Cedolare Secca (%)</label>
+                        <input type="number" id="aliquotaCedolare" value="21" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm">
+                    </div>
+                    <div id="forfettario_params" class="hidden">
+                         <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label for="coeffRedditivita" class="block text-sm font-medium text-gray-700">Coeff. Redditività (%)</label>
+                                <input type="number" id="coeffRedditivita" value="62" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm">
+                            </div>
+                            <div>
+                                <label for="aliquotaForfettaria" class="block text-sm font-medium text-gray-700">Aliquota Sostitutiva (%)</label>
+                                <input type="number" id="aliquotaForfettaria" value="15" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm">
+                            </div>
+                        </div>
+                    </div>
+                    <div id="ordinario_params" class="hidden">
+                        <label for="aliquotaIrpef" class="block text-sm font-medium text-gray-700">Aliquota Media IRPEF Stimata (%)</label>
+                        <input type="number" id="aliquotaIrpef" value="35" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sezione Risultati -->
+            <div class="mt-6 pt-6 border-t bg-gray-50 -m-6 px-6 py-6 rounded-b-xl">
+                <div class="flex justify-between items-center">
+                    <span class="text-sm font-medium text-gray-600">Ricavo Lordo Annuo:</span>
+                    <span id="ricavoLordo" class="text-md font-semibold text-gray-800"></span>
+                </div>
+                 <div class="flex justify-between items-center mt-1">
+                    <span class="text-sm font-medium text-gray-600">Notti Occupate / N. Prenotazioni:</span>
+                    <span id="occupazioneCalcolata" class="text-md font-semibold text-gray-800"></span>
+                </div>
+                 <div class="flex justify-between items-center mt-1">
+                    <span class="text-sm font-medium text-gray-600">Tassazione Stimata:</span>
+                    <span id="tassazione" class="text-md font-semibold text-red-600"></span>
+                </div>
+                <hr class="my-4">
+                <div class="flex justify-between items-center">
+                    <span class="text-lg font-medium">Utile Netto Annuo Stimato:</span>
+                    <span id="utileNetto" class="text-2xl font-bold text-[#5A8A7B]"></span>
+                </div>
+                <div class="flex justify-between items-center mt-2">
+                    <span class="text-lg font-medium">ROI Stimato:</span>
+                    <span id="roi" class="text-2xl font-bold text-[#5A8A7B]"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Seleziona tutti gli elementi di input
+        const investimentoInput = document.getElementById('investimento');
+        const adrSlider = document.getElementById('adr');
+        const adrVal = document.getElementById('adrVal');
+        const occupazioneSlider = document.getElementById('occupazione');
+        const occupazioneVal = document.getElementById('occupazioneVal');
+        const soggiornoMedioInput = document.getElementById('soggiornoMedio');
+        const commissioniInput = document.getElementById('commissioni');
+        const puliziaInput = document.getElementById('pulizia');
+        const utenzeNotteInput = document.getElementById('utenzeNotte');
+        const tariInput = document.getElementById('tari');
+        const condominioInput = document.getElementById('condominio');
+        const manutenzioneInput = document.getElementById('manutenzione');
+        const altriCostiFissiInput = document.getElementById('altriCostiFissi');
+
+        // Seleziona gli elementi del regime fiscale
+        const taxRadios = document.querySelectorAll('input[name="tax_regime"]');
+        const cedolareParams = document.getElementById('cedolare_params');
+        const forfettarioParams = document.getElementById('forfettario_params');
+        const ordinarioParams = document.getElementById('ordinario_params');
+        const aliquotaCedolareInput = document.getElementById('aliquotaCedolare');
+        const coeffRedditivitaInput = document.getElementById('coeffRedditivita');
+        const aliquotaForfettariaInput = document.getElementById('aliquotaForfettaria');
+        const aliquotaIrpefInput = document.getElementById('aliquotaIrpef');
+
+        // Seleziona gli elementi dove mostrare i risultati
+        const ricavoLordoEl = document.getElementById('ricavoLordo');
+        const occupazioneCalcolataEl = document.getElementById('occupazioneCalcolata');
+        const tassazioneEl = document.getElementById('tassazione');
+        const utileNettoEl = document.getElementById('utileNetto');
+        const roiEl = document.getElementById('roi');
+
+        // Funzione per gestire la visibilità dei parametri fiscali
+        function updateTaxParamsVisibility() {
+            const selectedRegime = document.querySelector('input[name="tax_regime"]:checked').value;
+            cedolareParams.classList.toggle('hidden', selectedRegime !== 'cedolare');
+            forfettarioParams.classList.toggle('hidden', selectedRegime !== 'forfettario');
+            ordinarioParams.classList.toggle('hidden', selectedRegime !== 'ordinario');
+        }
+        
+        // Funzione principale che esegue tutti i calcoli
+        function calculateROI() {
+            // Legge i valori attuali dai parametri principali e costi
+            const investimento = parseFloat(investimentoInput.value) || 0;
+            const adr = parseFloat(adrSlider.value);
+            const occupazione = parseFloat(occupazioneSlider.value) / 100;
+            const soggiornoMedio = parseFloat(soggiornoMedioInput.value) || 1;
+            const commissioniPercent = parseFloat(commissioniInput.value) / 100 || 0;
+            const costoPuliziaSingola = parseFloat(puliziaInput.value) || 0;
+            const costoUtenzeNotte = parseFloat(utenzeNotteInput.value) || 0;
+            const tari = parseFloat(tariInput.value) || 0;
+            const condominio = parseFloat(condominioInput.value) || 0;
+            const manutenzione = parseFloat(manutenzioneInput.value) || 0;
+            const altriCostiFissi = parseFloat(altriCostiFissiInput.value) || 0;
+
+            // Aggiorna i valori visualizzati
+            adrVal.textContent = adrSlider.value;
+            occupazioneVal.textContent = occupazioneSlider.value;
+
+            // --- Calcoli Preliminari ---
+            const nottiPrenotate = 365 * occupazione;
+            const numeroPrenotazioni = (soggiornoMedio > 0) ? nottiPrenotate / soggiornoMedio : 0;
+            const ricavoLordo = nottiPrenotate * adr;
+            
+            // Calcola i costi operativi
+            const commissioniOta = ricavoLordo * commissioniPercent;
+            const costiPuliziaTotali = numeroPrenotazioni * costoPuliziaSingola;
+            const utenzeTotali = nottiPrenotate * costoUtenzeNotte;
+            const costiVariabili = commissioniOta + costiPuliziaTotali + utenzeTotali;
+            const costiFissi = tari + condominio + manutenzione + altriCostiFissi;
+            const costiOperativi = costiVariabili + costiFissi;
+            const utileOperativoLordo = ricavoLordo - costiOperativi;
+
+            // --- Calcolo Tassazione ---
+            let tassazione = 0;
+            const selectedRegime = document.querySelector('input[name="tax_regime"]:checked').value;
+
+            switch (selectedRegime) {
+                case 'cedolare':
+                    const aliquotaCedolare = parseFloat(aliquotaCedolareInput.value) / 100 || 0;
+                    tassazione = ricavoLordo * aliquotaCedolare;
+                    break;
+                case 'forfettario':
+                    const coeffRedditivita = parseFloat(coeffRedditivitaInput.value) / 100 || 0;
+                    const aliquotaForfettaria = parseFloat(aliquotaForfettariaInput.value) / 100 || 0;
+                    const imponibileForfettario = ricavoLordo * coeffRedditivita;
+                    tassazione = imponibileForfettario * aliquotaForfettaria;
+                    break;
+                case 'ordinario':
+                    const aliquotaIrpef = parseFloat(aliquotaIrpefInput.value) / 100 || 0;
+                    if (utileOperativoLordo > 0) {
+                        tassazione = utileOperativoLordo * aliquotaIrpef;
+                    }
+                    break;
+            }
+
+            // --- Calcoli Finali ---
+            const utileNetto = utileOperativoLordo - tassazione;
+            const roi = (investimento > 0) ? (utileNetto / investimento) * 100 : 0;
+            
+            // Aggiorna l'interfaccia utente con i risultati formattati
+            ricavoLordoEl.textContent = `${ricavoLordo.toLocaleString('it-IT', { style: 'currency', currency: 'EUR' })}`;
+            occupazioneCalcolataEl.textContent = `${nottiPrenotate.toFixed(0)} notti / ${numeroPrenotazioni.toFixed(0)} soggiorni`;
+            tassazioneEl.textContent = `- ${tassazione.toLocaleString('it-IT', { style: 'currency', currency: 'EUR' })}`;
+            utileNettoEl.textContent = `${utileNetto.toLocaleString('it-IT', { style: 'currency', currency: 'EUR' })}`;
+            roiEl.textContent = `${roi.toFixed(2)}%`;
+        }
+
+        // Crea un array con tutti gli elementi di input
+        const allInputs = [
+            investimentoInput, adrSlider, occupazioneSlider, soggiornoMedioInput,
+            commissioniInput, puliziaInput, utenzeNotteInput,
+            tariInput, condominioInput, manutenzioneInput, altriCostiFissiInput,
+            aliquotaCedolareInput, coeffRedditivitaInput, aliquotaForfettariaInput, aliquotaIrpefInput
+        ];
+
+        // Aggiunge un "ascoltatore" a ogni input e ai radio button
+        allInputs.forEach(el => el.addEventListener('input', calculateROI));
+        taxRadios.forEach(radio => radio.addEventListener('change', () => {
+            updateTaxParamsVisibility();
+            calculateROI();
+        }));
+
+        // Esegue le funzioni una prima volta al caricamento della pagina
+        updateTaxParamsVisibility();
+        calculateROI();
+    });
+    </script>
+
+</body>
+</html>
