@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calcolatore di Rendimento</title>
+    <title>Calcolatore di Rendimento per Investimenti Immobiliari</title>
     <!-- Link al CDN di Tailwind CSS per lo stile -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Stili personalizzati per migliorare l'aspetto -->
@@ -21,6 +21,14 @@
             color: white;
             border-color: #5A8A7B;
         }
+        /* Stile per il toggle switch del Property Manager */
+        .toggle-checkbox:checked {
+            right: 0;
+            border-color: #5A8A7B;
+        }
+        .toggle-checkbox:checked + .toggle-label {
+            background-color: #5A8A7B;
+        }
     </style>
 </head>
 <body>
@@ -32,7 +40,7 @@
         </div>
 
         <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-200">
-            <h4 class="text-xl font-semibold mb-4 text-center">Calcolatore di Rendimento</h4>
+            <h4 class="text-xl font-semibold mb-4 text-center">Calcolatore Interattivo di Rendimento</h4>
             
             <!-- Sezione Parametri Principali -->
             <div class="space-y-4">
@@ -71,6 +79,20 @@
                     <div class="md:col-span-2">
                         <label for="utenzeNotte" class="block text-sm font-medium text-gray-700">Costo Utenze per Notte Occupata (€)</label>
                         <input type="number" id="utenzeNotte" value="15" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm">
+                    </div>
+                </div>
+                <!-- Sezione Property Manager -->
+                <div class="mt-6 pt-4 border-t border-gray-200">
+                     <div class="flex items-center justify-between">
+                        <label for="pmToggle" class="text-sm font-medium text-gray-700">Presenza Property Manager?</label>
+                        <div class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
+                            <input type="checkbox" name="pmToggle" id="pmToggle" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer"/>
+                            <label for="pmToggle" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"></label>
+                        </div>
+                    </div>
+                    <div id="pmCommissionSection" class="hidden mt-4">
+                        <label for="pmCommission" class="block text-sm font-medium text-gray-700">Commissione PM (% su ricavo al netto di OTA e pulizie)</label>
+                        <input type="number" id="pmCommission" value="20" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm">
                     </div>
                 </div>
             </div>
@@ -145,6 +167,10 @@
                     <span class="text-sm font-medium text-gray-600">Notti Occupate / N. Prenotazioni:</span>
                     <span id="occupazioneCalcolata" class="text-md font-semibold text-gray-800"></span>
                 </div>
+                <div id="pmGuadagnoSection" class="hidden flex justify-between items-center mt-1">
+                    <span class="text-sm font-medium text-gray-600">Guadagno Property Manager:</span>
+                    <span id="guadagnoPm" class="text-md font-semibold text-blue-600"></span>
+                </div>
                  <div class="flex justify-between items-center mt-1">
                     <span class="text-sm font-medium text-gray-600">Tassazione Stimata:</span>
                     <span id="tassazione" class="text-md font-semibold text-red-600"></span>
@@ -185,6 +211,11 @@
         const manutenzioneInput = document.getElementById('manutenzione');
         const altriCostiFissiInput = document.getElementById('altriCostiFissi');
 
+        // Seleziona elementi del Property Manager
+        const pmToggle = document.getElementById('pmToggle');
+        const pmCommissionSection = document.getElementById('pmCommissionSection');
+        const pmCommissionInput = document.getElementById('pmCommission');
+
         // Seleziona gli elementi del regime fiscale
         const taxRadios = document.querySelectorAll('input[name="tax_regime"]');
         const cedolareParams = document.getElementById('cedolare_params');
@@ -198,6 +229,8 @@
         // Seleziona gli elementi dove mostrare i risultati
         const ricavoLordoEl = document.getElementById('ricavoLordo');
         const occupazioneCalcolataEl = document.getElementById('occupazioneCalcolata');
+        const pmGuadagnoSection = document.getElementById('pmGuadagnoSection');
+        const guadagnoPmEl = document.getElementById('guadagnoPm');
         const tassazioneEl = document.getElementById('tassazione');
         const utileNettoEl = document.getElementById('utileNetto');
         const roiEl = document.getElementById('roi');
@@ -208,6 +241,11 @@
             cedolareParams.classList.toggle('hidden', selectedRegime !== 'cedolare');
             forfettarioParams.classList.toggle('hidden', selectedRegime !== 'forfettario');
             ordinarioParams.classList.toggle('hidden', selectedRegime !== 'ordinario');
+        }
+
+        // Funzione per gestire la visibilità della commissione PM
+        function updatePmVisibility() {
+            pmCommissionSection.classList.toggle('hidden', !pmToggle.checked);
         }
         
         // Funzione principale che esegue tutti i calcoli
@@ -238,7 +276,16 @@
             const commissioniOta = ricavoLordo * commissioniPercent;
             const costiPuliziaTotali = numeroPrenotazioni * costoPuliziaSingola;
             const utenzeTotali = nottiPrenotate * costoUtenzeNotte;
-            const costiVariabili = commissioniOta + costiPuliziaTotali + utenzeTotali;
+            
+            // Calcolo commissione PM sulla base netta
+            let costoPm = 0;
+            if (pmToggle.checked) {
+                const pmCommissionPercent = parseFloat(pmCommissionInput.value) / 100 || 0;
+                const ricavoNettoPerPm = ricavoLordo - commissioniOta - costiPuliziaTotali;
+                costoPm = ricavoNettoPerPm > 0 ? ricavoNettoPerPm * pmCommissionPercent : 0;
+            }
+
+            const costiVariabili = commissioniOta + costiPuliziaTotali + utenzeTotali + costoPm;
             const costiFissi = tari + condominio + manutenzione + altriCostiFissi;
             const costiOperativi = costiVariabili + costiFissi;
             const utileOperativoLordo = ricavoLordo - costiOperativi;
@@ -247,15 +294,22 @@
             let tassazione = 0;
             const selectedRegime = document.querySelector('input[name="tax_regime"]:checked').value;
 
+            // Determina la base imponibile in base alla presenza del PM
+            let baseImponibileTasse = ricavoLordo;
+            if (pmToggle.checked) {
+                const ricavoDelProprietario = ricavoLordo - commissioniOta - costiPuliziaTotali - costoPm;
+                baseImponibileTasse = ricavoDelProprietario > 0 ? ricavoDelProprietario : 0;
+            }
+
             switch (selectedRegime) {
                 case 'cedolare':
                     const aliquotaCedolare = parseFloat(aliquotaCedolareInput.value) / 100 || 0;
-                    tassazione = ricavoLordo * aliquotaCedolare;
+                    tassazione = baseImponibileTasse * aliquotaCedolare;
                     break;
                 case 'forfettario':
                     const coeffRedditivita = parseFloat(coeffRedditivitaInput.value) / 100 || 0;
                     const aliquotaForfettaria = parseFloat(aliquotaForfettariaInput.value) / 100 || 0;
-                    const imponibileForfettario = ricavoLordo * coeffRedditivita;
+                    const imponibileForfettario = baseImponibileTasse * coeffRedditivita;
                     tassazione = imponibileForfettario * aliquotaForfettaria;
                     break;
                 case 'ordinario':
@@ -273,6 +327,14 @@
             // Aggiorna l'interfaccia utente con i risultati formattati
             ricavoLordoEl.textContent = `${ricavoLordo.toLocaleString('it-IT', { style: 'currency', currency: 'EUR' })}`;
             occupazioneCalcolataEl.textContent = `${nottiPrenotate.toFixed(0)} notti / ${numeroPrenotazioni.toFixed(0)} soggiorni`;
+            
+            if (pmToggle.checked) {
+                pmGuadagnoSection.classList.remove('hidden');
+                guadagnoPmEl.textContent = `+ ${costoPm.toLocaleString('it-IT', { style: 'currency', currency: 'EUR' })}`;
+            } else {
+                pmGuadagnoSection.classList.add('hidden');
+            }
+
             tassazioneEl.textContent = `- ${tassazione.toLocaleString('it-IT', { style: 'currency', currency: 'EUR' })}`;
             utileNettoEl.textContent = `${utileNetto.toLocaleString('it-IT', { style: 'currency', currency: 'EUR' })}`;
             roiEl.textContent = `${roi.toFixed(2)}%`;
@@ -283,22 +345,30 @@
             investimentoInput, adrSlider, occupazioneSlider, soggiornoMedioInput,
             commissioniInput, puliziaInput, utenzeNotteInput,
             tariInput, condominioInput, manutenzioneInput, altriCostiFissiInput,
-            aliquotaCedolareInput, coeffRedditivitaInput, aliquotaForfettariaInput, aliquotaIrpefInput
+            aliquotaCedolareInput, coeffRedditivitaInput, aliquotaForfettariaInput, aliquotaIrpefInput,
+            pmToggle, pmCommissionInput
         ];
 
         // Aggiunge un "ascoltatore" a ogni input e ai radio button
         allInputs.forEach(el => el.addEventListener('input', calculateROI));
+        
         taxRadios.forEach(radio => radio.addEventListener('change', () => {
             updateTaxParamsVisibility();
             calculateROI();
         }));
 
+        pmToggle.addEventListener('change', () => {
+            updatePmVisibility();
+            calculateROI();
+        });
+
+
         // Esegue le funzioni una prima volta al caricamento della pagina
         updateTaxParamsVisibility();
+        updatePmVisibility();
         calculateROI();
     });
     </script>
 
 </body>
 </html>
-
