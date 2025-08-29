@@ -50,12 +50,12 @@
                 </div>
                  <div>
                     <label for="adr" class="block text-sm font-medium text-gray-700">Tariffa Media Giornaliera (€)</label>
-                    <input type="range" id="adr" min="90" max="160" value="125" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                    <input type="range" id="adr" min="90" max="1000" value="125" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
                     <div class="text-right text-sm font-medium text-[#5A8A7B]"><span id="adrVal">125</span> €</div>
                 </div>
                 <div>
                     <label for="occupazione" class="block text-sm font-medium text-gray-700">Tasso di Occupazione Previsto (%)</label>
-                    <input type="range" id="occupazione" min="30" max="85" value="65" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                    <input type="range" id="occupazione" min="0" max="100" value="65" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
                     <div class="text-right text-sm font-medium text-[#5A8A7B]"><span id="occupazioneVal">65</span>%</div>
                 </div>
                 <div>
@@ -73,8 +73,8 @@
                         <input type="number" id="commissioni" value="15" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm">
                     </div>
                     <div>
-                        <label for="pulizia" class="block text-sm font-medium text-gray-700">Costo Pulizia per Soggiorno (€)</label>
-                        <input type="number" id="pulizia" value="50" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm">
+                        <label for="costoRealePulizia" class="block text-sm font-medium text-gray-700">Costo Reale Pulizia per Soggiorno (€)</label>
+                        <input type="number" id="costoRealePulizia" value="50" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm">
                     </div>
                     <div class="md:col-span-2">
                         <label for="utenzeNotte" class="block text-sm font-medium text-gray-700">Costo Utenze per Notte Occupata (€)</label>
@@ -90,9 +90,15 @@
                             <label for="pmToggle" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"></label>
                         </div>
                     </div>
-                    <div id="pmCommissionSection" class="hidden mt-4">
-                        <label for="pmCommission" class="block text-sm font-medium text-gray-700">Commissione PM (% su ricavo al netto di OTA e pulizie)</label>
-                        <input type="number" id="pmCommission" value="20" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm">
+                    <div id="pmSection" class="hidden mt-4 space-y-4">
+                        <div>
+                            <label for="costoPuliziaOspite" class="block text-sm font-medium text-gray-700">Costo Pulizie addebitato all'Ospite (€)</label>
+                            <input type="number" id="costoPuliziaOspite" value="50" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm">
+                        </div>
+                        <div>
+                            <label for="pmCommission" class="block text-sm font-medium text-gray-700">Commissione PM (% su ricavo netto)</label>
+                            <input type="number" id="pmCommission" value="20" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm">
+                        </div>
                     </div>
                 </div>
             </div>
@@ -102,7 +108,7 @@
                 <h5 class="text-lg font-semibold mb-4 text-center">Costi Fissi Annuali</h5>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <label for="tari" class="block text-sm font-medium text-gray-700">TARI (€)</label>
+                        <label for="tari" class="block text-sm font-medium text-gray-700">Tari e Imu (€)</label>
                         <input type="number" id="tari" value="300" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm">
                     </div>
                     <div>
@@ -142,38 +148,49 @@
                          <div class="grid grid-cols-2 gap-4">
                             <div>
                                 <label for="coeffRedditivita" class="block text-sm font-medium text-gray-700">Coeff. Redditività (%)</label>
-                                <input type="number" id="coeffRedditivita" value="62" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm">
+                                <input type="number" id="coeffRedditivita" value="40" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm">
                             </div>
                             <div>
                                 <label for="aliquotaForfettaria" class="block text-sm font-medium text-gray-700">Aliquota Sostitutiva (%)</label>
-                                <input type="number" id="aliquotaForfettaria" value="15" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm">
+                                <input type="number" id="aliquotaForfettaria" value="5" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm">
                             </div>
                         </div>
                     </div>
                     <div id="ordinario_params" class="hidden">
-                        <label for="aliquotaIrpef" class="block text-sm font-medium text-gray-700">Aliquota Media Stimata (%)</label>
+                        <label for="aliquotaIrpef" class="block text-sm font-medium text-gray-700">Aliquota Media IRPEF Stimata (%)</label>
                         <input type="number" id="aliquotaIrpef" value="35" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm">
                     </div>
                 </div>
             </div>
 
-            <!-- Sezione Risultati -->
+            <!-- Sezione Riepilogo -->
             <div class="mt-6 pt-6 border-t bg-gray-50 -m-6 px-6 py-6 rounded-b-xl">
-                <div class="flex justify-between items-center">
-                    <span class="text-sm font-medium text-gray-600">Ricavo Lordo Annuo:</span>
-                    <span id="ricavoLordo" class="text-md font-semibold text-gray-800"></span>
-                </div>
-                 <div class="flex justify-between items-center mt-1">
-                    <span class="text-sm font-medium text-gray-600">Notti Occupate / N. Prenotazioni:</span>
-                    <span id="occupazioneCalcolata" class="text-md font-semibold text-gray-800"></span>
-                </div>
-                <div id="pmGuadagnoSection" class="hidden flex justify-between items-center mt-1">
-                    <span class="text-sm font-medium text-gray-600">Guadagno Property Manager:</span>
-                    <span id="guadagnoPm" class="text-md font-semibold text-blue-600"></span>
-                </div>
-                 <div class="flex justify-between items-center mt-1">
-                    <span class="text-sm font-medium text-gray-600">Tassazione Stimata:</span>
-                    <span id="tassazione" class="text-md font-semibold text-red-600"></span>
+                <h5 class="text-lg font-semibold mb-4 text-center">Riepilogo</h5>
+                <div class="space-y-1">
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm font-medium text-gray-600">Ricavo Lordo Annuo:</span>
+                        <span id="ricavoLordo" class="text-md font-semibold text-gray-800"></span>
+                    </div>
+                     <div class="flex justify-between items-center">
+                        <span class="text-sm font-medium text-gray-600">Notti Occupate / N. Prenotazioni:</span>
+                        <span id="occupazioneCalcolata" class="text-md font-semibold text-gray-800"></span>
+                    </div>
+                    <div id="pmGuadagnoSection" class="hidden flex justify-between items-center">
+                        <span class="text-sm font-medium text-gray-600">Guadagno Property Manager:</span>
+                        <span id="guadagnoPm" class="text-md font-semibold text-blue-600"></span>
+                    </div>
+                     <div class="flex justify-between items-center">
+                        <span id="dettaglioPulizieLabel" class="text-sm font-medium text-gray-600">Costo Pulizie Totali:</span>
+                        <span id="dettaglioPulizieValore" class="text-md font-semibold text-red-600"></span>
+                    </div>
+                     <div class="flex justify-between items-center">
+                        <span class="text-sm font-medium text-gray-600">Totale Costi Operativi:</span>
+                        <span id="totaleCosti" class="text-md font-semibold text-red-600"></span>
+                    </div>
+                     <div class="flex justify-between items-center">
+                        <span class="text-sm font-medium text-gray-600">Tassazione Stimata:</span>
+                        <span id="tassazione" class="text-md font-semibold text-red-600"></span>
+                    </div>
                 </div>
                 <hr class="my-4">
                 <div class="flex justify-between items-center">
@@ -204,7 +221,7 @@
         const occupazioneVal = document.getElementById('occupazioneVal');
         const soggiornoMedioInput = document.getElementById('soggiornoMedio');
         const commissioniInput = document.getElementById('commissioni');
-        const puliziaInput = document.getElementById('pulizia');
+        const costoRealePuliziaInput = document.getElementById('costoRealePulizia');
         const utenzeNotteInput = document.getElementById('utenzeNotte');
         const tariInput = document.getElementById('tari');
         const condominioInput = document.getElementById('condominio');
@@ -213,8 +230,9 @@
 
         // Seleziona elementi del Property Manager
         const pmToggle = document.getElementById('pmToggle');
-        const pmCommissionSection = document.getElementById('pmCommissionSection');
+        const pmSection = document.getElementById('pmSection');
         const pmCommissionInput = document.getElementById('pmCommission');
+        const costoPuliziaOspiteInput = document.getElementById('costoPuliziaOspite');
 
         // Seleziona gli elementi del regime fiscale
         const taxRadios = document.querySelectorAll('input[name="tax_regime"]');
@@ -231,6 +249,9 @@
         const occupazioneCalcolataEl = document.getElementById('occupazioneCalcolata');
         const pmGuadagnoSection = document.getElementById('pmGuadagnoSection');
         const guadagnoPmEl = document.getElementById('guadagnoPm');
+        const dettaglioPulizieLabel = document.getElementById('dettaglioPulizieLabel');
+        const dettaglioPulizieValore = document.getElementById('dettaglioPulizieValore');
+        const totaleCostiEl = document.getElementById('totaleCosti');
         const tassazioneEl = document.getElementById('tassazione');
         const utileNettoEl = document.getElementById('utileNetto');
         const roiEl = document.getElementById('roi');
@@ -243,9 +264,9 @@
             ordinarioParams.classList.toggle('hidden', selectedRegime !== 'ordinario');
         }
 
-        // Funzione per gestire la visibilità della commissione PM
+        // Funzione per gestire la visibilità della sezione PM
         function updatePmVisibility() {
-            pmCommissionSection.classList.toggle('hidden', !pmToggle.checked);
+            pmSection.classList.toggle('hidden', !pmToggle.checked);
         }
         
         // Funzione principale che esegue tutti i calcoli
@@ -256,7 +277,7 @@
             const occupazione = parseFloat(occupazioneSlider.value) / 100;
             const soggiornoMedio = parseFloat(soggiornoMedioInput.value) || 1;
             const commissioniPercent = parseFloat(commissioniInput.value) / 100 || 0;
-            const costoPuliziaSingola = parseFloat(puliziaInput.value) || 0;
+            const costoRealePuliziaSingola = parseFloat(costoRealePuliziaInput.value) || 0;
             const costoUtenzeNotte = parseFloat(utenzeNotteInput.value) || 0;
             const tari = parseFloat(tariInput.value) || 0;
             const condominio = parseFloat(condominioInput.value) || 0;
@@ -270,22 +291,36 @@
             // --- Calcoli Preliminari ---
             const nottiPrenotate = 365 * occupazione;
             const numeroPrenotazioni = (soggiornoMedio > 0) ? nottiPrenotate / soggiornoMedio : 0;
-            const ricavoLordo = nottiPrenotate * adr;
+            const ricavoSoggiorno = nottiPrenotate * adr;
             
+            let incassoPulizieOspite = 0;
+            if (pmToggle.checked) {
+                const costoPuliziaOspite = parseFloat(costoPuliziaOspiteInput.value) || 0;
+                incassoPulizieOspite = numeroPrenotazioni * costoPuliziaOspite;
+            }
+            
+            const ricavoLordo = ricavoSoggiorno + incassoPulizieOspite;
+
             // Calcola i costi operativi
-            const commissioniOta = ricavoLordo * commissioniPercent;
-            const costiPuliziaTotali = numeroPrenotazioni * costoPuliziaSingola;
+            const commissioniOta = ricavoSoggiorno * commissioniPercent;
+            const costiRealiPulizieTotali = numeroPrenotazioni * costoRealePuliziaSingola;
             const utenzeTotali = nottiPrenotate * costoUtenzeNotte;
             
-            // Calcolo commissione PM sulla base netta
             let costoPm = 0;
+            let costiPuliziaPerProprietario = costiRealiPulizieTotali;
+
             if (pmToggle.checked) {
                 const pmCommissionPercent = parseFloat(pmCommissionInput.value) / 100 || 0;
-                const ricavoNettoPerPm = ricavoLordo - commissioniOta - costiPuliziaTotali;
-                costoPm = ricavoNettoPerPm > 0 ? ricavoNettoPerPm * pmCommissionPercent : 0;
+                const ricavoNettoPerCommissionePm = ricavoSoggiorno - commissioniOta;
+                const quotaCommissionePm = ricavoNettoPerCommissionePm > 0 ? ricavoNettoPerCommissionePm * pmCommissionPercent : 0;
+                
+                const profittoPuliziePm = incassoPulizieOspite - costiRealiPulizieTotali;
+                costoPm = quotaCommissionePm + profittoPuliziePm;
+
+                costiPuliziaPerProprietario = 0;
             }
 
-            const costiVariabili = commissioniOta + costiPuliziaTotali + utenzeTotali + costoPm;
+            const costiVariabili = commissioniOta + costiPuliziaPerProprietario + utenzeTotali + costoPm;
             const costiFissi = tari + condominio + manutenzione + altriCostiFissi;
             const costiOperativi = costiVariabili + costiFissi;
             const utileOperativoLordo = ricavoLordo - costiOperativi;
@@ -294,10 +329,9 @@
             let tassazione = 0;
             const selectedRegime = document.querySelector('input[name="tax_regime"]:checked').value;
 
-            // Determina la base imponibile in base alla presenza del PM
             let baseImponibileTasse = ricavoLordo;
             if (pmToggle.checked) {
-                const ricavoDelProprietario = ricavoLordo - commissioniOta - costiPuliziaTotali - costoPm;
+                const ricavoDelProprietario = ricavoSoggiorno - commissioniOta - costoPm;
                 baseImponibileTasse = ricavoDelProprietario > 0 ? ricavoDelProprietario : 0;
             }
 
@@ -331,10 +365,14 @@
             if (pmToggle.checked) {
                 pmGuadagnoSection.classList.remove('hidden');
                 guadagnoPmEl.textContent = `+ ${costoPm.toLocaleString('it-IT', { style: 'currency', currency: 'EUR' })}`;
+                dettaglioPulizieLabel.textContent = `Costo Reale Pulizie (a carico PM):`;
             } else {
                 pmGuadagnoSection.classList.add('hidden');
+                dettaglioPulizieLabel.textContent = `Costo Reale Pulizie (${numeroPrenotazioni.toFixed(0)} x ${costoRealePuliziaSingola}€):`;
             }
-
+            
+            dettaglioPulizieValore.textContent = `- ${costiRealiPulizieTotali.toLocaleString('it-IT', { style: 'currency', currency: 'EUR' })}`;
+            totaleCostiEl.textContent = `- ${costiOperativi.toLocaleString('it-IT', { style: 'currency', currency: 'EUR' })}`;
             tassazioneEl.textContent = `- ${tassazione.toLocaleString('it-IT', { style: 'currency', currency: 'EUR' })}`;
             utileNettoEl.textContent = `${utileNetto.toLocaleString('it-IT', { style: 'currency', currency: 'EUR' })}`;
             roiEl.textContent = `${roi.toFixed(2)}%`;
@@ -343,10 +381,10 @@
         // Crea un array con tutti gli elementi di input
         const allInputs = [
             investimentoInput, adrSlider, occupazioneSlider, soggiornoMedioInput,
-            commissioniInput, puliziaInput, utenzeNotteInput,
+            commissioniInput, costoRealePuliziaInput, utenzeNotteInput,
             tariInput, condominioInput, manutenzioneInput, altriCostiFissiInput,
             aliquotaCedolareInput, coeffRedditivitaInput, aliquotaForfettariaInput, aliquotaIrpefInput,
-            pmToggle, pmCommissionInput
+            pmToggle, pmCommissionInput, costoPuliziaOspiteInput
         ];
 
         // Aggiunge un "ascoltatore" a ogni input e ai radio button
@@ -372,4 +410,3 @@
 
 </body>
 </html>
-
