@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+
 <html lang="it">
 <head>
     <meta charset="UTF-8">
@@ -9,11 +9,12 @@
     <!-- Stili personalizzati per migliorare l'aspetto -->
     <style>
         body {
-            background-color: #f7fafc; /* Sfondo grigio chiaro per la pagina */
+            background-color: #849686; /* Sfondo principale aggiornato */
         }
         .calculator-container {
-            max-width: 600px;
-            margin: 4rem auto; /* Centra il calcolatore verticalmente e orizzontalmente */
+            max-width: 1200px; /* Aumentata la larghezza massima per il layout orizzontale */
+            margin: 4rem auto;
+            padding: 0 1rem;
         }
         /* Stile per i radio button personalizzati */
         .tax-radio:checked + label {
@@ -36,177 +37,186 @@
     <div class="calculator-container">
         <!-- Sezione Header con Titolo -->
         <div class="text-center mb-6">
-            <h1 class="text-4xl font-bold text-[#756454]">Quality Host</h1>
+            <h1 class="text-4xl font-bold text-white">Quality Host</h1>
         </div>
 
         <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-200">
-            <h4 class="text-xl font-semibold mb-4 text-center">Calcolatore Interattivo di Rendimento</h4>
+            <h4 class="text-2xl font-semibold mb-6 text-center">Calcolatore Interattivo di Rendimento</h4>
             
-            <!-- Sezione Parametri Principali -->
-            <div class="space-y-4">
-                <div>
-                    <label for="investimento" class="block text-sm font-medium text-gray-700">Investimento Totale (€)</label>
-                    <input type="number" id="investimento" value="95220" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#A87B5A] focus:ring-[#A87B5A] sm:text-sm">
-                </div>
-                 <div>
-                    <label for="adr" class="block text-sm font-medium text-gray-700">Tariffa Media Giornaliera (€)</label>
-                    <input type="range" id="adr" min="10" max="1000" value="125" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
-                    <div class="text-right text-sm font-medium text-[#5A8A7B]"><span id="adrVal">125</span> €</div>
-                </div>
-                <div>
-                    <label for="occupazione" class="block text-sm font-medium text-gray-700">Tasso di Occupazione Previsto (%)</label>
-                    <input type="range" id="occupazione" min="0" max="100" value="65" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
-                    <div class="text-right text-sm font-medium text-[#5A8A7B]"><span id="occupazioneVal">65</span>%</div>
-                </div>
-                <div>
-                    <label for="soggiornoMedio" class="block text-sm font-medium text-gray-700">Soggiorno Medio (giorni)</label>
-                    <input type="number" id="soggiornoMedio" value="3" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm">
-                </div>
-            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
-            <!-- Sezione Costi Variabili -->
-            <div class="mt-6 pt-6 border-t">
-                <h5 class="text-lg font-semibold mb-4 text-center">Costi Variabili</h5>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Colonna 1: Parametri Principali -->
+                <div class="space-y-4">
+                    <h5 class="text-lg font-semibold text-center border-b pb-2">Parametri Principali</h5>
                     <div>
-                        <label for="commissioni" class="block text-sm font-medium text-gray-700">Commissioni OTA (%)</label>
-                        <input type="number" id="commissioni" value="15" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm">
+                        <label for="investimento" class="block text-sm font-medium text-gray-700">Investimento Totale (€)</label>
+                        <input type="number" id="investimento" value="95220" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#A87B5A] focus:ring-[#A87B5A] sm:text-sm">
+                    </div>
+                     <div>
+                        <label for="adr" class="block text-sm font-medium text-gray-700">Tariffa Media Giornaliera (€)</label>
+                        <input type="range" id="adr" min="90" max="1000" value="125" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                        <div class="text-right text-sm font-medium text-[#5A8A7B]"><span id="adrVal">125</span> €</div>
                     </div>
                     <div>
-                        <label for="costoRealePulizia" class="block text-sm font-medium text-gray-700">Costo Reale Pulizia per Soggiorno (€)</label>
-                        <input type="number" id="costoRealePulizia" value="50" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm">
+                        <label for="occupazione" class="block text-sm font-medium text-gray-700">Tasso di Occupazione Previsto (%)</label>
+                        <input type="range" id="occupazione" min="0" max="100" value="65" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                        <div class="text-right text-sm font-medium text-[#5A8A7B]"><span id="occupazioneVal">65</span>%</div>
                     </div>
-                    <div class="md:col-span-2">
-                        <label for="utenzeNotte" class="block text-sm font-medium text-gray-700">Costo Utenze per Notte Occupata (€)</label>
-                        <input type="number" id="utenzeNotte" value="15" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm">
+                    <div>
+                        <label for="soggiornoMedio" class="block text-sm font-medium text-gray-700">Soggiorno Medio (giorni)</label>
+                        <input type="number" id="soggiornoMedio" value="3" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm">
                     </div>
                 </div>
-                <!-- Sezione Property Manager -->
-                <div class="mt-6 pt-4 border-t border-gray-200">
-                     <div class="flex items-center justify-between">
-                        <label for="pmToggle" class="text-sm font-medium text-gray-700">Presenza Property Manager?</label>
-                        <div class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
-                            <input type="checkbox" name="pmToggle" id="pmToggle" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer"/>
-                            <label for="pmToggle" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"></label>
-                        </div>
-                    </div>
-                    <div id="pmSection" class="hidden mt-4 space-y-4">
-                        <div>
-                            <label for="costoPuliziaOspite" class="block text-sm font-medium text-gray-700">Costo Pulizie addebitato all'Ospite (€)</label>
-                            <input type="number" id="costoPuliziaOspite" value="50" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm">
-                        </div>
-                        <div>
-                            <label for="pmCommission" class="block text-sm font-medium text-gray-700">Commissione PM (% su ricavo netto)</label>
-                            <input type="number" id="pmCommission" value="20" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm">
-                        </div>
-                    </div>
-                </div>
-            </div>
 
-            <!-- Sezione Costi Fissi -->
-            <div class="mt-6 pt-6 border-t">
-                <h5 class="text-lg font-semibold mb-4 text-center">Costi Fissi Annuali</h5>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Colonna 2: Dettaglio Costi -->
+                <div class="space-y-6 lg:border-l lg:border-r lg:px-8">
+                    <!-- Costi Variabili -->
                     <div>
-                        <label for="tari" class="block text-sm font-medium text-gray-700">Tari e Imu (€)</label>
-                        <input type="number" id="tari" value="300" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm">
-                    </div>
-                    <div>
-                        <label for="condominio" class="block text-sm font-medium text-gray-700">Condominio (€)</label>
-                        <input type="number" id="condominio" value="600" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm">
-                    </div>
-                    <div>
-                        <label for="manutenzione" class="block text-sm font-medium text-gray-700">Manutenzione (€)</label>
-                        <input type="number" id="manutenzione" value="500" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm">
-                    </div>
-                    <div>
-                        <label for="altriCostiFissi" class="block text-sm font-medium text-gray-700">Altri Costi Fissi (€)</label>
-                        <input type="number" id="altriCostiFissi" value="200" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm">
-                    </div>
-                </div>
-            </div>
-
-            <!-- Sezione Regime Fiscale -->
-            <div class="mt-6 pt-6 border-t">
-                <h5 class="text-lg font-semibold mb-4 text-center">Regime Fiscale</h5>
-                <div class="grid grid-cols-3 gap-2 rounded-lg bg-gray-100 p-1">
-                    <input type="radio" name="tax_regime" id="cedolare" value="cedolare" class="hidden tax-radio" checked>
-                    <label for="cedolare" class="text-center text-sm p-2 rounded-md cursor-pointer border border-gray-200 transition">Cedolare Secca</label>
-                    
-                    <input type="radio" name="tax_regime" id="forfettario" value="forfettario" class="hidden tax-radio">
-                    <label for="forfettario" class="text-center text-sm p-2 rounded-md cursor-pointer border border-gray-200 transition">P.IVA Forfettaria</label>
-                    
-                    <input type="radio" name="tax_regime" id="ordinario" value="ordinario" class="hidden tax-radio">
-                    <label for="ordinario" class="text-center text-sm p-2 rounded-md cursor-pointer border border-gray-200 transition">P.IVA Ordinaria</label>
-                </div>
-                <div id="tax_params" class="mt-4 space-y-4">
-                    <div id="cedolare_params">
-                        <label for="aliquotaCedolare" class="block text-sm font-medium text-gray-700">Aliquota Cedolare Secca (%)</label>
-                        <input type="number" id="aliquotaCedolare" value="21" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm">
-                    </div>
-                    <div id="forfettario_params" class="hidden">
-                         <div class="grid grid-cols-2 gap-4">
+                        <h5 class="text-lg font-semibold mb-4 text-center border-b pb-2">Costi Variabili</h5>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                                <label for="coeffRedditivita" class="block text-sm font-medium text-gray-700">Coeff. Redditività (%)</label>
-                                <input type="number" id="coeffRedditivita" value="40" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm">
+                                <label for="commissioni" class="block text-sm font-medium text-gray-700">Commissioni OTA (%)</label>
+                                <input type="number" id="commissioni" value="15" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm">
                             </div>
                             <div>
-                                <label for="aliquotaForfettaria" class="block text-sm font-medium text-gray-700">Aliquota Sostitutiva (%)</label>
-                                <input type="number" id="aliquotaForfettaria" value="5" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm">
+                                <label for="costoRealePulizia" class="block text-sm font-medium text-gray-700">Costo Reale Pulizia (€)</label>
+                                <input type="number" id="costoRealePulizia" value="50" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm">
+                            </div>
+                            <div class="md:col-span-2">
+                                <label for="utenzeNotte" class="block text-sm font-medium text-gray-700">Costo Utenze per Notte (€)</label>
+                                <input type="number" id="utenzeNotte" value="15" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm">
+                            </div>
+                        </div>
+                        <!-- Property Manager -->
+                        <div class="mt-6 pt-4 border-t border-gray-200">
+                             <div class="flex items-center justify-between">
+                                <label for="pmToggle" class="text-sm font-medium text-gray-700">Presenza Property Manager?</label>
+                                <div class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
+                                    <input type="checkbox" name="pmToggle" id="pmToggle" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer"/>
+                                    <label for="pmToggle" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"></label>
+                                </div>
+                            </div>
+                            <div id="pmSection" class="hidden mt-4 space-y-4">
+                                <div>
+                                    <label for="costoPuliziaOspite" class="block text-sm font-medium text-gray-700">Costo Pulizie Ospite (€)</label>
+                                    <input type="number" id="costoPuliziaOspite" value="50" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm">
+                                </div>
+                                <div>
+                                    <label for="pmCommission" class="block text-sm font-medium text-gray-700">Commissione PM (%)</label>
+                                    <input type="number" id="pmCommission" value="20" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm">
+                                </div>
                             </div>
                         </div>
                     </div>
-                    <div id="ordinario_params" class="hidden">
-                        <label for="aliquotaIrpef" class="block text-sm font-medium text-gray-700">Aliquota Media IRPEF Stimata (%)</label>
-                        <input type="number" id="aliquotaIrpef" value="35" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm">
+                    <!-- Costi Fissi -->
+                    <div>
+                        <h5 class="text-lg font-semibold mb-4 text-center border-b pb-2">Costi Fissi Annuali</h5>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label for="tari" class="block text-sm font-medium text-gray-700">Tari e Imu (€)</label>
+                                <input type="number" id="tari" value="300" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm">
+                            </div>
+                            <div>
+                                <label for="condominio" class="block text-sm font-medium text-gray-700">Condominio (€)</label>
+                                <input type="number" id="condominio" value="600" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm">
+                            </div>
+                            <div>
+                                <label for="manutenzione" class="block text-sm font-medium text-gray-700">Manutenzione (€)</label>
+                                <input type="number" id="manutenzione" value="500" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm">
+                            </div>
+                            <div>
+                                <label for="altriCostiFissi" class="block text-sm font-medium text-gray-700">Altri Costi Fissi (€)</label>
+                                <input type="number" id="altriCostiFissi" value="200" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm">
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Sezione Riepilogo -->
-            <div class="mt-6 pt-6 border-t bg-gray-50 -m-6 px-6 py-6 rounded-b-xl">
-                <h5 class="text-lg font-semibold mb-4 text-center">Riepilogo</h5>
-                <div class="space-y-1">
-                    <div class="flex justify-between items-center">
-                        <span class="text-sm font-medium text-gray-600">Ricavo Lordo Annuo:</span>
-                        <span id="ricavoLordo" class="text-md font-semibold text-gray-800"></span>
+                <!-- Colonna 3: Fisco e Riepilogo -->
+                <div class="space-y-6">
+                    <!-- Regime Fiscale -->
+                    <div>
+                        <h5 class="text-lg font-semibold mb-4 text-center border-b pb-2">Regime Fiscale</h5>
+                        <div class="grid grid-cols-3 gap-2 rounded-lg bg-gray-100 p-1">
+                            <input type="radio" name="tax_regime" id="cedolare" value="cedolare" class="hidden tax-radio" checked>
+                            <label for="cedolare" class="text-center text-sm p-2 rounded-md cursor-pointer border border-gray-200 transition">Cedolare Secca</label>
+                            
+                            <input type="radio" name="tax_regime" id="forfettario" value="forfettario" class="hidden tax-radio">
+                            <label for="forfettario" class="text-center text-sm p-2 rounded-md cursor-pointer border border-gray-200 transition">P.IVA Forfettaria</label>
+                            
+                            <input type="radio" name="tax_regime" id="ordinario" value="ordinario" class="hidden tax-radio">
+                            <label for="ordinario" class="text-center text-sm p-2 rounded-md cursor-pointer border border-gray-200 transition">P.IVA Ordinaria</label>
+                        </div>
+                        <div id="tax_params" class="mt-4 space-y-4">
+                            <div id="cedolare_params">
+                                <label for="aliquotaCedolare" class="block text-sm font-medium text-gray-700">Aliquota Cedolare Secca (%)</label>
+                                <input type="number" id="aliquotaCedolare" value="21" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm">
+                            </div>
+                            <div id="forfettario_params" class="hidden">
+                                 <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label for="coeffRedditivita" class="block text-sm font-medium text-gray-700">Coeff. Redditività (%)</label>
+                                        <input type="number" id="coeffRedditivita" value="40" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm">
+                                    </div>
+                                    <div>
+                                        <label for="aliquotaForfettaria" class="block text-sm font-medium text-gray-700">Aliquota Sostitutiva (%)</label>
+                                        <input type="number" id="aliquotaForfettaria" value="5" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm">
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="ordinario_params" class="hidden">
+                                <label for="aliquotaIrpef" class="block text-sm font-medium text-gray-700">Aliquota Media IRPEF (%)</label>
+                                <input type="number" id="aliquotaIrpef" value="35" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm">
+                            </div>
+                        </div>
                     </div>
-                     <div class="flex justify-between items-center">
-                        <span class="text-sm font-medium text-gray-600">Notti Occupate / N. Prenotazioni:</span>
-                        <span id="occupazioneCalcolata" class="text-md font-semibold text-gray-800"></span>
-                    </div>
-                    <div id="pmGuadagnoSection" class="hidden flex justify-between items-center">
-                        <span class="text-sm font-medium text-gray-600">Guadagno Property Manager:</span>
-                        <span id="guadagnoPm" class="text-md font-semibold text-blue-600"></span>
-                    </div>
-                     <div class="flex justify-between items-center">
-                        <span id="dettaglioPulizieLabel" class="text-sm font-medium text-gray-600">Costo Pulizie Totali:</span>
-                        <span id="dettaglioPulizieValore" class="text-md font-semibold text-red-600"></span>
-                    </div>
-                     <div class="flex justify-between items-center">
-                        <span class="text-sm font-medium text-gray-600">Totale Costi Operativi:</span>
-                        <span id="totaleCosti" class="text-md font-semibold text-red-600"></span>
-                    </div>
-                     <div class="flex justify-between items-center">
-                        <span class="text-sm font-medium text-gray-600">Tassazione Stimata:</span>
-                        <span id="tassazione" class="text-md font-semibold text-red-600"></span>
+                    <!-- Riepilogo -->
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <h5 class="text-lg font-semibold mb-4 text-center border-b pb-2">Riepilogo</h5>
+                        <div class="space-y-1">
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm font-medium text-gray-600">Ricavo Lordo Annuo:</span>
+                                <span id="ricavoLordo" class="text-md font-semibold text-gray-800"></span>
+                            </div>
+                             <div class="flex justify-between items-center">
+                                <span class="text-sm font-medium text-gray-600">Notti / Prenotazioni:</span>
+                                <span id="occupazioneCalcolata" class="text-md font-semibold text-gray-800"></span>
+                            </div>
+                            <div id="pmGuadagnoSection" class="hidden flex justify-between items-center">
+                                <span class="text-sm font-medium text-gray-600">Guadagno PM:</span>
+                                <span id="guadagnoPm" class="text-md font-semibold text-blue-600"></span>
+                            </div>
+                             <div class="flex justify-between items-center">
+                                <span id="dettaglioPulizieLabel" class="text-sm font-medium text-gray-600">Costo Pulizie:</span>
+                                <span id="dettaglioPulizieValore" class="text-md font-semibold text-red-600"></span>
+                            </div>
+                             <div class="flex justify-between items-center">
+                                <span class="text-sm font-medium text-gray-600">Totale Costi Operativi:</span>
+                                <span id="totaleCosti" class="text-md font-semibold text-red-600"></span>
+                            </div>
+                             <div class="flex justify-between items-center">
+                                <span class="text-sm font-medium text-gray-600">Tassazione Stimata:</span>
+                                <span id="tassazione" class="text-md font-semibold text-red-600"></span>
+                            </div>
+                        </div>
+                        <hr class="my-4">
+                        <div class="flex justify-between items-center">
+                            <span class="text-lg font-medium">Utile Netto Annuo:</span>
+                            <span id="utileNetto" class="text-2xl font-bold text-[#5A8A7B]"></span>
+                        </div>
+                        <div class="flex justify-between items-center mt-2">
+                            <span class="text-lg font-medium">ROI Stimato:</span>
+                            <span id="roi" class="text-2xl font-bold text-[#5A8A7B]"></span>
+                        </div>
                     </div>
                 </div>
-                <hr class="my-4">
-                <div class="flex justify-between items-center">
-                    <span class="text-lg font-medium">Utile Netto Annuo Stimato:</span>
-                    <span id="utileNetto" class="text-2xl font-bold text-[#5A8A7B]"></span>
-                </div>
-                <div class="flex justify-between items-center mt-2">
-                    <span class="text-lg font-medium">ROI Stimato:</span>
-                    <span id="roi" class="text-2xl font-bold text-[#5A8A7B]"></span>
-                </div>
+
             </div>
         </div>
     </div>
 
     <!-- Sezione Footer -->
-    <footer class="text-center mt-8 mb-8 text-sm text-gray-500">
+    <footer class="text-center mt-8 mb-8 text-sm text-gray-400">
         <p>Tutti i diritti sono riservati a QualityHost.</p>
     </footer>
 
@@ -360,7 +370,7 @@
             
             // Aggiorna l'interfaccia utente con i risultati formattati
             ricavoLordoEl.textContent = `${ricavoLordo.toLocaleString('it-IT', { style: 'currency', currency: 'EUR' })}`;
-            occupazioneCalcolataEl.textContent = `${nottiPrenotate.toFixed(0)} notti / ${numeroPrenotazioni.toFixed(0)} soggiorni`;
+            occupazioneCalcolataEl.textContent = `${nottiPrenotate.toFixed(0)} / ${numeroPrenotazioni.toFixed(0)}`;
             
             if (pmToggle.checked) {
                 pmGuadagnoSection.classList.remove('hidden');
@@ -410,4 +420,3 @@
 
 </body>
 </html>
-
