@@ -227,7 +227,6 @@
 
     <script>
     document.addEventListener('DOMContentLoaded', function () {
-        // Seleziona tutti gli elementi di input
         const allInputs = [
             'investimento', 'adr', 'occupazione', 'soggiornoMedio', 'commissioni', 
             'costoRealePulizia', 'utenzeNotte', 'tari', 'condominio', 'manutenzione', 
@@ -239,8 +238,6 @@
         }, {});
 
         const taxRadios = document.querySelectorAll('input[name="tax_regime"]');
-
-        // Seleziona gli elementi dove mostrare i risultati e le sezioni dinamiche
         const uiElements = {
             adrVal: document.getElementById('adrVal'),
             occupazioneVal: document.getElementById('occupazioneVal'),
@@ -271,62 +268,55 @@
             uiElements.cedolareParams.classList.toggle('hidden', selectedRegime !== 'cedolare');
             uiElements.forfettarioParams.classList.toggle('hidden', selectedRegime !== 'forfettario');
             uiElements.ordinarioParams.classList.toggle('hidden', selectedRegime !== 'ordinario');
-            
             uiElements.pmSection.classList.toggle('hidden', !allInputs.pmToggle.checked);
         }
         
         function calculateROI() {
-            // Legge e converte tutti i valori di input
             const values = Object.keys(allInputs).reduce((acc, id) => {
                 const el = allInputs[id];
-                if (el.type === 'checkbox') {
-                    acc[id] = el.checked;
-                } else {
-                    acc[id] = parseFloat(el.value) || 0;
-                }
+                acc[id] = (el.type === 'checkbox') ? el.checked : (parseFloat(el.value) || 0);
                 return acc;
             }, {});
 
             uiElements.adrVal.textContent = values.adr;
             uiElements.occupazioneVal.textContent = values.occupazione;
 
-            // --- Calcoli Preliminari ---
             const nottiPrenotate = 365 * (values.occupazione / 100);
             const numeroPrenotazioni = (values.soggiornoMedio > 0) ? nottiPrenotate / values.soggiornoMedio : 0;
             const ricavoSoggiorno = nottiPrenotate * values.adr;
             const incassoPulizieOspite = numeroPrenotazioni * values.costoPuliziaOspite;
             const ricavoLordo = ricavoSoggiorno + incassoPulizieOspite;
 
-            // --- Calcolo Costi ---
-            const commissioniOta = ricavoSoggiorno * (values.commissioni / 100);
+            const commissioniOta = ricavoLordo * (values.commissioni / 100);
             const costiRealiPulizieTotali = numeroPrenotazioni * values.costoRealePulizia;
             const utenzeTotali = nottiPrenotate * values.utenzeNotte;
             const costiFissi = values.tari + values.condominio + values.manutenzione + values.altriCostiFissi;
-
-            let costoPm = 0;
-            let costiPuliziaPerProprietario = costiRealiPulizieTotali;
+            
+            let guadagnoPm = 0;
             let marginePulizieProprietario = incassoPulizieOspite - costiRealiPulizieTotali;
+            
+            let costiOperativiProprietario, utileLordoProprietario, baseImponibileTasse;
 
             if (values.pmToggle) {
-                const ricavoNettoPerCommPm = ricavoSoggiorno - commissioniOta;
-                const quotaCommissionePm = ricavoNettoPerCommPm > 0 ? ricavoNettoPerCommPm * (values.pmCommission / 100) : 0;
-                const profittoPuliziePm = marginePulizieProprietario;
-                costoPm = quotaCommissionePm + profittoPuliziePm;
-                costiPuliziaPerProprietario = 0; // Il costo reale è a carico del PM
+                const basePerCommissionePm = ricavoSoggiorno; // La commissione si calcola solo sul soggiorno
+                const quotaCommissionePm = (basePerCommissionePm - commissioniOta) * (values.pmCommission / 100);
+                const profittoPuliziePm = incassoPulizieOspite - costiRealiPulizieTotali;
+                guadagnoPm = quotaCommissionePm + profittoPuliziePm;
+
+                const ricavoDelProprietario = ricavoSoggiorno - commissioniOta - quotaCommissionePm;
+                
+                costiOperativiProprietario = utenzeTotali + costiFissi;
+                utileLordoProprietario = ricavoDelProprietario - costiOperativiProprietario;
+                baseImponibileTasse = ricavoDelProprietario > 0 ? ricavoDelProprietario : 0;
+
+            } else {
+                costiOperativiProprietario = commissioniOta + costiRealiPulizieTotali + utenzeTotali + costiFissi;
+                utileLordoProprietario = ricavoLordo - costiOperativiProprietario;
+                baseImponibileTasse = ricavoLordo;
             }
 
-            const costiOperativi = commissioniOta + costiPuliziaPerProprietario + utenzeTotali + costiFissi + costoPm;
-            const utileOperativoLordo = ricavoLordo - costiOperativi;
-
-            // --- Calcolo Tassazione ---
             let tassazione = 0;
             const selectedRegime = document.querySelector('input[name="tax_regime"]:checked').value;
-            let baseImponibileTasse = ricavoLordo;
-
-            if (values.pmToggle) {
-                const ricavoDelProprietario = ricavoSoggiorno - commissioniOta - costoPm;
-                baseImponibileTasse = ricavoDelProprietario > 0 ? ricavoDelProprietario : 0;
-            }
 
             switch (selectedRegime) {
                 case 'cedolare':
@@ -337,20 +327,22 @@
                     tassazione = imponibileForfettario * (values.aliquotaForfettaria / 100);
                     break;
                 case 'ordinario':
-                    if (utileOperativoLordo > 0) {
-                        tassazione = utileOperativoLordo * (values.aliquotaIrpef / 100);
+                    const utileTassabile = values.pmToggle ? utileLordoProprietario : utileLordoProprietario;
+                    if (utileTassabile > 0) {
+                        tassazione = utileTassabile * (values.aliquotaIrpef / 100);
                     }
                     break;
             }
 
-            // --- Calcoli Finali ---
-            const utileNetto = utileOperativoLordo - tassazione;
+            const utileNetto = utileLordoProprietario - tassazione;
             const roi = (values.investimento > 0) ? (utileNetto / values.investimento) * 100 : 0;
             
-            // --- Aggiornamento UI ---
             uiElements.ricavoLordo.textContent = formatCurrency(ricavoLordo);
             uiElements.occupazioneCalcolata.textContent = `${nottiPrenotate.toFixed(0)} / ${numeroPrenotazioni.toFixed(0)}`;
-            uiElements.totaleCosti.textContent = `- ${formatCurrency(costiOperativi)}`;
+            
+            const totaleCostiVisibile = commissioniOta + costiRealiPulizieTotali + utenzeTotali + costiFissi + (values.pmToggle ? guadagnoPm : 0);
+            uiElements.totaleCosti.textContent = `- ${formatCurrency(totaleCostiVisibile)}`;
+
             uiElements.tassazione.textContent = `- ${formatCurrency(tassazione)}`;
             uiElements.utileNetto.textContent = formatCurrency(utileNetto);
             uiElements.roi.textContent = `${roi.toFixed(2)}%`;
@@ -359,7 +351,7 @@
             uiElements.marginePulizieSection.classList.toggle('hidden', values.pmToggle);
 
             if (values.pmToggle) {
-                uiElements.guadagnoPm.textContent = `+ ${formatCurrency(costoPm)}`;
+                uiElements.guadagnoPm.textContent = `+ ${formatCurrency(guadagnoPm)}`;
                 uiElements.dettaglioPulizieLabel.textContent = `Costo Reale Pulizie (a carico PM):`;
             } else {
                 uiElements.marginePulizie.textContent = `+ ${formatCurrency(marginePulizieProprietario)}`;
@@ -368,7 +360,6 @@
             uiElements.dettaglioPulizieValore.textContent = `- ${formatCurrency(costiRealiPulizieTotali)}`;
         }
 
-        // Aggiunge gli event listener
         Object.values(allInputs).forEach(el => el.addEventListener('input', calculateROI));
         taxRadios.forEach(radio => radio.addEventListener('change', () => {
             toggleVisibility();
@@ -379,7 +370,6 @@
             calculateROI();
         });
 
-        // Esegue le funzioni al caricamento
         toggleVisibility();
         calculateROI();
     });
