@@ -49,7 +49,7 @@
                 <div class="space-y-4">
                     <h3 class="text-lg font-semibold text-center border-b pb-2">Parametri Principali</h3>
                     <div>
-                        <label for="investimento" class="block text-sm font-medium text-gray-700">Investimento per Proprietà (€)</label>
+                        <label for="investimento" class="block text-sm font-medium text-gray-700">Investimento Totale (€)</label>
                         <input type="number" id="investimento" value="95220" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#A87B5A] focus:ring-[#A87B5A] sm:text-sm">
                     </div>
                      <div>
@@ -288,6 +288,8 @@
         function toggleVisibility() {
             const isMulti = allInputs.multiProprietaToggle.checked;
             uiElements.costiFissiTitle.textContent = `Costi Fissi Annuali ${isMulti ? '(Totali per l\'operazione)' : '(per proprietà)'}`;
+            document.querySelector('label[for="investimento"]').textContent = isMulti ? 'Investimento Totale (€)' : 'Investimento per Proprietà (€)';
+
 
             const selectedRegime = document.querySelector('input[name="tax_regime"]:checked').value;
             uiElements.cedolareParams.classList.toggle('hidden', selectedRegime !== 'cedolare');
@@ -310,7 +312,6 @@
             uiElements.adrVal.textContent = values.adr;
             uiElements.occupazioneVal.textContent = values.occupazione;
 
-            // Arrotondamento
             const nottiPrenotateSingle = Math.round(365 * (values.occupazione / 100));
             const numeroPrenotazioniSingle = (values.soggiornoMedio > 0) ? Math.round(nottiPrenotateSingle / values.soggiornoMedio) : 0;
             
@@ -321,36 +322,28 @@
             const commissioniOtaSingle = ricavoLordoSingle * (values.commissioni / 100);
             const costiRealiPulizieSingle = numeroPrenotazioniSingle * values.costoRealePulizia;
             const utenzeSingle = nottiPrenotateSingle * values.utenzeNotte;
-            const costiFissiSingleProp = values.tari + values.condominio + values.manutenzione + values.altriCostiFissi;
+            const costiFissi = values.tari + values.condominio + values.manutenzione + values.altriCostiFissi;
 
             let guadagnoPmSingle = 0;
             let marginePulizieProprietarioSingle = incassoPulizieOspiteSingle - costiRealiPulizieSingle;
             
-            let utileLordoProprietarioSingle, baseImponibileTasseSingle;
+            let utileLordoProprietario_before_fixed_single, baseImponibileTasseSingle;
 
             if (values.pmToggle) {
                 const quotaCommissionePm = (ricavoSoggiornoSingle - commissioniOtaSingle) * (values.pmCommission / 100);
                 guadagnoPmSingle = (quotaCommissionePm > 0 ? quotaCommissionePm : 0) + marginePulizieProprietarioSingle;
                 const ricavoDelProprietario = ricavoSoggiornoSingle - commissioniOtaSingle - quotaCommissionePm;
-                const costiOperativiProprietario = utenzeSingle + (isMulti ? 0 : costiFissiSingleProp);
-                utileLordoProprietarioSingle = ricavoDelProprietario - costiOperativiProprietario;
+                utileLordoProprietario_before_fixed_single = ricavoDelProprietario - utenzeSingle;
                 baseImponibileTasseSingle = ricavoDelProprietario > 0 ? ricavoDelProprietario : 0;
             } else {
-                const costiOperativiProprietario = commissioniOtaSingle + costiRealiPulizieSingle + utenzeSingle + costiFissiSingleProp;
-                utileLordoProprietarioSingle = ricavoLordoSingle - costiOperativiProprietario;
+                utileLordoProprietario_before_fixed_single = ricavoLordoSingle - (commissioniOtaSingle + costiRealiPulizieSingle + utenzeSingle);
                 baseImponibileTasseSingle = ricavoLordoSingle;
             }
             
-            let utileLordoProprietarioTotale;
-            if (isMulti) {
-                 utileLordoProprietarioTotale = (utileLordoProprietarioSingle * numeroProprieta) - costiFissiSingleProp;
-            } else {
-                 utileLordoProprietarioTotale = utileLordoProprietarioSingle;
-            }
-
+            const utileLordoProprietarioTotale = (utileLordoProprietario_before_fixed_single * numeroProprieta) - (isMulti ? costiFissi : (costiFissi * numeroProprieta));
+            
             let tassazioneSingle = 0;
             const selectedRegime = document.querySelector('input[name="tax_regime"]:checked').value;
-            
             const ricavoLordoTotale = ricavoLordoSingle * numeroProprieta;
             uiElements.forfettarioWarning.classList.toggle('hidden', !(selectedRegime === 'forfettario' && ricavoLordoTotale > 85000));
 
@@ -362,15 +355,16 @@
                     tassazioneSingle = (baseImponibileTasseSingle * (values.coeffRedditivita / 100)) * (values.aliquotaForfettaria / 100);
                     break;
                 case 'ordinario':
-                    const utileTassabile = isMulti ? (utileLordoProprietarioTotale / numeroProprieta) : utileLordoProprietarioSingle;
+                    const utileTassabile = utileLordoProprietarioTotale / numeroProprieta;
                     if (utileTassabile > 0) {
                         tassazioneSingle = utileTassabile * (values.aliquotaIrpef / 100);
                     }
                     break;
             }
 
-            const utileNettoTotale = utileLordoProprietarioTotale - (tassazioneSingle * numeroProprieta);
-            const investimentoTotale = values.investimento * numeroProprieta;
+            const tassazioneTotale = tassazioneSingle * numeroProprieta;
+            const utileNettoTotale = utileLordoProprietarioTotale - tassazioneTotale;
+            const investimentoTotale = isMulti ? values.investimento : values.investimento * numeroProprieta;
             const roi = (investimentoTotale > 0) ? (utileNettoTotale / investimentoTotale) * 100 : 0;
             
             const guadagnoPmTotaleUI = guadagnoPmSingle * numeroProprieta;
@@ -381,15 +375,15 @@
             if (isMulti) {
                 const costiVariabiliTotali = (commissioniOtaSingle + (values.pmToggle ? 0 : costiRealiPulizieSingle) + utenzeSingle) * numeroProprieta;
                 const pmCostTotal = values.pmToggle ? guadagnoPmTotaleUI : 0;
-                totaleCostiVisibile = costiVariabiliTotali + costiFissiSingleProp + pmCostTotal;
+                totaleCostiVisibile = costiVariabiliTotali + costiFissi + pmCostTotal;
             } else {
-                totaleCostiVisibile = commissioniOtaSingle + (values.pmToggle ? 0 : costiRealiPulizieSingle) + utenzeSingle + costiFissiSingleProp + (values.pmToggle ? guadagnoPmSingle : 0);
+                totaleCostiVisibile = commissioniOtaSingle + (values.pmToggle ? 0 : costiRealiPulizieSingle) + utenzeSingle + costiFissi + (values.pmToggle ? guadagnoPmSingle : 0);
             }
 
             uiElements.ricavoLordo.textContent = formatCurrency(ricavoLordoTotale);
             uiElements.occupazioneCalcolata.textContent = `${(nottiPrenotateSingle * numeroProprieta).toFixed(0)} / ${(numeroPrenotazioniSingle * numeroProprieta).toFixed(0)}`;
             uiElements.totaleCosti.textContent = `- ${formatCurrency(totaleCostiVisibile)}`;
-            uiElements.tassazione.textContent = `- ${formatCurrency(tassazioneSingle * numeroProprieta)}`;
+            uiElements.tassazione.textContent = `- ${formatCurrency(tassazioneTotale)}`;
             uiElements.utileNetto.textContent = formatCurrency(utileNettoTotale);
             uiElements.roi.textContent = `${roi.toFixed(2)}%`;
 
