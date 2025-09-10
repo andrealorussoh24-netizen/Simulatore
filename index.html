@@ -310,6 +310,7 @@
             uiElements.adrVal.textContent = values.adr;
             uiElements.occupazioneVal.textContent = values.occupazione;
 
+            // Arrotondamento
             const nottiPrenotateSingle = Math.round(365 * (values.occupazione / 100));
             const numeroPrenotazioniSingle = (values.soggiornoMedio > 0) ? Math.round(nottiPrenotateSingle / values.soggiornoMedio) : 0;
             
@@ -378,7 +379,7 @@
 
             let totaleCostiVisibile;
             if (isMulti) {
-                const costiVariabiliTotali = (commissioniOtaSingle + (values.pmToggle ? 0 : costiRealiPulizieSingle)) * numeroProprieta + (utenzeSingle * numeroProprieta);
+                const costiVariabiliTotali = (commissioniOtaSingle + (values.pmToggle ? 0 : costiRealiPulizieSingle) + utenzeSingle) * numeroProprieta;
                 const pmCostTotal = values.pmToggle ? guadagnoPmTotaleUI : 0;
                 totaleCostiVisibile = costiVariabiliTotali + costiFissiSingleProp + pmCostTotal;
             } else {
