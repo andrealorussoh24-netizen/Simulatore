@@ -6,6 +6,8 @@
     <title>Calcolatore di Rendimento QualityHost</title>
     <!-- Link al CDN di Tailwind CSS per lo stile -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Link al CDN di jsPDF per la generazione di PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <!-- Stili personalizzati per migliorare l'aspetto -->
     <style>
         body {
@@ -62,7 +64,7 @@
                         <input type="range" id="occupazione" min="0" max="100" value="65" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
                         <div class="text-right text-sm font-medium text-[#5A8A7B]"><span id="occupazioneVal">65</span>%</div>
                     </div>
-                    <div>
+                     <div>
                         <label for="periodoApertura" class="block text-sm font-medium text-gray-700">Periodo di Apertura (mesi)</label>
                         <input type="range" id="periodoApertura" min="1" max="12" value="12" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
                         <div class="text-right text-sm font-medium text-[#5A8A7B]"><span id="periodoAperturaVal">12</span> mesi</div>
@@ -234,6 +236,11 @@
                             <span class="text-lg font-medium">ROI Stimato:</span>
                             <span id="roi" class="text-2xl font-bold text-[#5A8A7B]"></span>
                         </div>
+                         <div class="mt-4">
+                            <button id="generatePdfBtn" class="w-full bg-[#5A8A7B] text-white font-semibold py-2 px-4 rounded-lg shadow hover:bg-opacity-90 transition">
+                                Genera Report PDF
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -249,6 +256,8 @@
 
     <script>
     document.addEventListener('DOMContentLoaded', function () {
+        const { jsPDF } = window.jspdf;
+
         const allInputs = [
             'investimento', 'adr', 'occupazione', 'soggiornoMedio', 'commissioni', 
             'costoRealePulizia', 'utenzeNotte', 'tari', 'condominio', 'manutenzione', 
@@ -283,9 +292,12 @@
             totaleCosti: document.getElementById('totaleCosti'),
             tassazione: document.getElementById('tassazione'),
             utileNetto: document.getElementById('utileNetto'),
-            roi: document.getElementById('roi')
+            roi: document.getElementById('roi'),
+            generatePdfBtn: document.getElementById('generatePdfBtn')
         };
         
+        let lastResults = {};
+
         function formatCurrency(value) {
             return value.toLocaleString('it-IT', { style: 'currency', currency: 'EUR' });
         }
@@ -293,8 +305,7 @@
         function toggleVisibility() {
             const isMulti = allInputs.multiProprietaToggle.checked;
             uiElements.costiFissiTitle.textContent = `Costi Fissi Annuali ${isMulti ? '(Totali per l\'operazione)' : '(per proprietà)'}`;
-            document.querySelector('label[for="investimento"]').textContent = isMulti ? 'Investimento Totale (€)' : 'Investimento per Proprietà (€)';
-
+            document.querySelector('label[for="investimento"]').textContent = 'Investimento Totale (€)';
 
             const selectedRegime = document.querySelector('input[name="tax_regime"]:checked').value;
             uiElements.cedolareParams.classList.toggle('hidden', selectedRegime !== 'cedolare');
@@ -347,7 +358,8 @@
                 baseImponibileTasseSingle = ricavoLordoSingle;
             }
             
-            const utileLordoProprietarioTotale = (utileLordoProprietario_before_fixed_single * numeroProprieta) - (isMulti ? costiFissi : (costiFissi * numeroProprieta));
+            const costiFissiDaSottrarre = isMulti ? costiFissi : (costiFissi * numeroProprieta);
+            const utileLordoProprietarioTotale = (utileLordoProprietario_before_fixed_single * numeroProprieta) - costiFissiDaSottrarre;
             
             let tassazioneSingle = 0;
             const selectedRegime = document.querySelector('input[name="tax_regime"]:checked').value;
@@ -387,26 +399,120 @@
             } else {
                 totaleCostiVisibile = commissioniOtaSingle + (values.pmToggle ? 0 : costiRealiPulizieSingle) + utenzeSingle + costiFissi + (values.pmToggle ? guadagnoPmSingle : 0);
             }
+            
+            lastResults = {
+                ricavoLordo: ricavoLordoTotale,
+                notti: nottiPrenotateSingle * numeroProprieta,
+                prenotazioni: numeroPrenotazioniSingle * numeroProprieta,
+                guadagnoPm: guadagnoPmTotaleUI,
+                marginePulizie: marginePulizieTotaleUI,
+                costoRealePulizie: costoRealePulizieTotaleUI,
+                totaleCosti: totaleCostiVisibile,
+                tassazione: tassazioneTotale,
+                utileNetto: utileNettoTotale,
+                roi: roi,
+                inputs: values // Salva anche gli input
+            };
 
-            uiElements.ricavoLordo.textContent = formatCurrency(ricavoLordoTotale);
-            uiElements.occupazioneCalcolata.textContent = `${(nottiPrenotateSingle * numeroProprieta).toFixed(0)} / ${(numeroPrenotazioniSingle * numeroProprieta).toFixed(0)}`;
-            uiElements.totaleCosti.textContent = `- ${formatCurrency(totaleCostiVisibile)}`;
-            uiElements.tassazione.textContent = `- ${formatCurrency(tassazioneTotale)}`;
-            uiElements.utileNetto.textContent = formatCurrency(utileNettoTotale);
-            uiElements.roi.textContent = `${roi.toFixed(2)}%`;
+
+            uiElements.ricavoLordo.textContent = formatCurrency(lastResults.ricavoLordo);
+            uiElements.occupazioneCalcolata.textContent = `${lastResults.notti.toFixed(0)} / ${lastResults.prenotazioni.toFixed(0)}`;
+            uiElements.totaleCosti.textContent = `- ${formatCurrency(lastResults.totaleCosti)}`;
+            uiElements.tassazione.textContent = `- ${formatCurrency(lastResults.tassazione)}`;
+            uiElements.utileNetto.textContent = formatCurrency(lastResults.utileNetto);
+            uiElements.roi.textContent = `${lastResults.roi.toFixed(2)}%`;
 
             uiElements.pmGuadagnoSection.classList.toggle('hidden', !values.pmToggle);
             uiElements.marginePulizieSection.classList.toggle('hidden', values.pmToggle);
 
             if (values.pmToggle) {
-                uiElements.guadagnoPm.textContent = `+ ${formatCurrency(guadagnoPmTotaleUI)}`;
+                uiElements.guadagnoPm.textContent = `+ ${formatCurrency(lastResults.guadagnoPm)}`;
                 uiElements.dettaglioPulizieLabel.textContent = `Costo Reale Pulizie (a carico PM):`;
             } else {
-                uiElements.marginePulizie.textContent = `+ ${formatCurrency(marginePulizieTotaleUI)}`;
+                uiElements.marginePulizie.textContent = `+ ${formatCurrency(lastResults.marginePulizie)}`;
                 uiElements.dettaglioPulizieLabel.textContent = `Costo Reale Pulizie:`;
             }
-            uiElements.dettaglioPulizieValore.textContent = `- ${formatCurrency(costoRealePulizieTotaleUI)}`;
+            uiElements.dettaglioPulizieValore.textContent = `- ${formatCurrency(lastResults.costoRealePulizie)}`;
         }
+        
+        function generatePDF() {
+            const doc = new jsPDF();
+            const { inputs, ...results } = lastResults;
+            let y = 20;
+
+            doc.setFontSize(18);
+            doc.text("Report di Simulazione - QualityHost", 105, y, { align: 'center' });
+            y += 15;
+
+            doc.setFontSize(14);
+            doc.text("Parametri Principali", 14, y);
+            y += 8;
+            doc.setFontSize(10);
+            doc.text(`Investimento Totale: ${formatCurrency(inputs.investimento * (inputs.multiProprietaToggle ? inputs.numeroProprieta : 1))}`, 14, y);
+            y += 6;
+            if (inputs.multiProprietaToggle) {
+                doc.text(`Numero di Proprietà: ${inputs.numeroProprieta}`, 14, y);
+                y += 6;
+            }
+            doc.text(`Tariffa Media Giornaliera: ${formatCurrency(inputs.adr)}`, 14, y);
+            y += 6;
+            doc.text(`Tasso di Occupazione: ${inputs.occupazione}%`, 14, y);
+            y+= 6;
+            doc.text(`Periodo di Apertura: ${inputs.periodoApertura} mesi`, 14, y);
+            y += 6;
+            doc.text(`Soggiorno Medio: ${inputs.soggiornoMedio} giorni`, 14, y);
+            y += 12;
+
+            doc.setFontSize(14);
+            doc.text("Riepilogo Totale", 105, y, { align: 'center' });
+            y += 10;
+            
+            doc.setFontSize(12);
+            doc.text("Ricavi e Performance", 14, y);
+            y += 8;
+            doc.setFontSize(10);
+            doc.text(`Ricavo Lordo Annuo: ${formatCurrency(results.ricavoLordo)}`, 14, y);
+            y += 6;
+            doc.text(`Notti / Prenotazioni: ${results.notti.toFixed(0)} / ${results.prenotazioni.toFixed(0)}`, 14, y);
+            y += 10;
+
+            doc.setFontSize(12);
+            doc.text("Costi e Margini", 14, y);
+            y += 8;
+            doc.setFontSize(10);
+             if (inputs.pmToggle) {
+                doc.text(`Guadagno Property Manager: ${formatCurrency(results.guadagnoPm)}`, 14, y);
+                y += 6;
+            } else {
+                doc.text(`Margine Pulizie: ${formatCurrency(results.marginePulizie)}`, 14, y);
+                y += 6;
+            }
+            doc.text(`Totale Costi Operativi: ${formatCurrency(results.totaleCosti)}`, 14, y);
+            y+=10;
+
+            doc.setFontSize(12);
+            doc.text("Risultati Finali", 14, y);
+            y += 8;
+            doc.setFontSize(10);
+            doc.text(`Tassazione Stimata (${inputs.taxRegime}): ${formatCurrency(results.tassazione)}`, 14, y);
+            y += 8;
+            doc.setFont("helvetica", "bold");
+            doc.text(`Utile Netto Annuo: ${formatCurrency(results.utileNetto)}`, 14, y);
+            y += 8;
+            doc.text(`ROI Stimato: ${results.roi.toFixed(2)}%`, 14, y);
+            doc.setFont("helvetica", "normal");
+            
+            y += 20;
+            doc.setLineWidth(0.5);
+            doc.line(14, y, 196, y);
+            y += 10;
+            doc.setFontSize(8);
+            doc.text("Questo documento è una simulazione basata sui dati inseriti. I risultati sono stime e non costituiscono una garanzia di rendimento.", 105, y, { align: 'center' });
+
+
+            doc.save("Report_Simulazione_QualityHost.pdf");
+        }
+
 
         Object.values(allInputs).forEach(el => el.addEventListener('input', calculateROI));
         taxRadios.forEach(radio => radio.addEventListener('change', () => {
@@ -421,6 +527,8 @@
             toggleVisibility();
             calculateROI();
         });
+        uiElements.generatePdfBtn.addEventListener('click', generatePDF);
+
 
         toggleVisibility();
         calculateROI();
