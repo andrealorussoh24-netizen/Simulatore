@@ -63,6 +63,11 @@
                         <div class="text-right text-sm font-medium text-[#5A8A7B]"><span id="occupazioneVal">65</span>%</div>
                     </div>
                     <div>
+                        <label for="periodoApertura" class="block text-sm font-medium text-gray-700">Periodo di Apertura (mesi)</label>
+                        <input type="range" id="periodoApertura" min="1" max="12" value="12" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                        <div class="text-right text-sm font-medium text-[#5A8A7B]"><span id="periodoAperturaVal">12</span> mesi</div>
+                    </div>
+                    <div>
                         <label for="soggiornoMedio" class="block text-sm font-medium text-gray-700">Soggiorno Medio (giorni)</label>
                         <input type="number" id="soggiornoMedio" value="3" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm">
                     </div>
@@ -124,7 +129,7 @@
                     </div>
                     <!-- Costi Fissi -->
                     <div>
-                        <h3 class="text-lg font-semibold mb-4 text-center border-b pb-2" id="costiFissiTitle">Costi Fissi Annuali (per proprietà)</h3>
+                        <h3 class="text-lg font-semibold mb-4 text-center border-b pb-2" id="costiFissiTitle">Costi Fissi Annuali</h3>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <label for="tari" class="block text-sm font-medium text-gray-700">Tari e Imu (€)</label>
@@ -249,7 +254,7 @@
             'costoRealePulizia', 'utenzeNotte', 'tari', 'condominio', 'manutenzione', 
             'altriCostiFissi', 'pmToggle', 'pmCommission', 'spesePuliziaOspite', 
             'aliquotaCedolare', 'coeffRedditivita', 'aliquotaForfettaria', 'aliquotaIrpef',
-            'numeroProprieta', 'multiProprietaToggle'
+            'numeroProprieta', 'multiProprietaToggle', 'periodoApertura'
         ].reduce((acc, id) => {
             acc[id] = document.getElementById(id);
             return acc;
@@ -259,9 +264,9 @@
         const uiElements = {
             adrVal: document.getElementById('adrVal'),
             occupazioneVal: document.getElementById('occupazioneVal'),
+            periodoAperturaVal: document.getElementById('periodoAperturaVal'),
             pmSection: document.getElementById('pmSection'),
             multiProprietaSection: document.getElementById('multiProprietaSection'),
-            costiVariabiliTitle: document.getElementById('costiVariabiliTitle'),
             costiFissiTitle: document.getElementById('costiFissiTitle'),
             cedolareParams: document.getElementById('cedolare_params'),
             forfettarioParams: document.getElementById('forfettario_params'),
@@ -311,8 +316,10 @@
 
             uiElements.adrVal.textContent = values.adr;
             uiElements.occupazioneVal.textContent = values.occupazione;
+            uiElements.periodoAperturaVal.textContent = values.periodoApertura;
 
-            const nottiPrenotateSingle = Math.round(365 * (values.occupazione / 100));
+            const giorniDisponibili = Math.round(values.periodoApertura * 30.4);
+            const nottiPrenotateSingle = Math.round(giorniDisponibili * (values.occupazione / 100));
             const numeroPrenotazioniSingle = (values.soggiornoMedio > 0) ? Math.round(nottiPrenotateSingle / values.soggiornoMedio) : 0;
             
             const ricavoSoggiornoSingle = nottiPrenotateSingle * values.adr;
@@ -364,6 +371,7 @@
 
             const tassazioneTotale = tassazioneSingle * numeroProprieta;
             const utileNettoTotale = utileLordoProprietarioTotale - tassazioneTotale;
+            
             const investimentoTotale = isMulti ? values.investimento : values.investimento * numeroProprieta;
             const roi = (investimentoTotale > 0) ? (utileNettoTotale / investimentoTotale) * 100 : 0;
             
