@@ -1,633 +1,538 @@
-<!DOCTYPE html>
-<html lang="it">
+="it">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simulatore di role play commmerciale con AI</title>
+    <title>Calcolatore di Rendimento QualityHost</title>
+    <!-- Link al CDN di Tailwind CSS per lo stile -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Librerie per leggere e creare PDF -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
+    <!-- Link al CDN di jsPDF per la generazione di PDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
-    <script>
-        // Configurazione necessaria per pdf.js
-        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.worker.min.js';
-    </script>
+    <!-- Stili personalizzati per migliorare l'aspetto -->
     <style>
         body {
-            font-family: 'Inter', sans-serif;
+            background-color: #849686; /* Sfondo principale aggiornato */
         }
-        .chat-bubble {
-            max-width: 75%;
-            padding: 10px 15px;
-            border-radius: 20px;
-            word-wrap: break-word;
+        .calculator-container {
+            max-width: 1200px; 
+            margin: 4rem auto;
+            padding: 0 1rem;
         }
-        .user-bubble {
-            background-color: #3b82f6; /* blue-500 */
+        /* Stile per i radio button personalizzati */
+        .tax-radio:checked + label {
+            background-color: #5A8A7B;
             color: white;
-            border-bottom-right-radius: 5px;
-            align-self: flex-end;
+            border-color: #5A8A7B;
         }
-        .ai-bubble {
-            background-color: #e5e7eb; /* gray-200 */
-            color: #1f2937; /* gray-800 */
-            border-bottom-left-radius: 5px;
-            align-self: flex-start;
+        /* Stile per il toggle switch */
+        .toggle-checkbox:checked {
+            right: 0;
+            border-color: #5A8A7B;
         }
-        #chat-container {
-            scroll-behavior: smooth;
-        }
-        .glowing-border {
-            box-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
-        }
-        .gemini-btn {
-            background: linear-gradient(90deg, #4285F4, #9b72cb, #d96570, #f2a600);
-            background-size: 200% 200%;
-            animation: gradient 3s ease infinite;
-        }
-        @keyframes gradient {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-        #persuasion-bar-inner {
-            transition: width 0.5s ease-in-out;
+        .toggle-checkbox:checked + .toggle-label {
+            background-color: #5A8A7B;
         }
     </style>
 </head>
-<body class="bg-gray-100 text-gray-800 flex flex-col min-h-screen">
+<body>
 
-    <header class="bg-white shadow-md">
-        <div class="max-w-5xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
-            <h1 class="text-3xl font-bold text-gray-900">Simulatore di Role Play Commerciale <span class="text-blue-600">IA</span></h1>
-            <p class="text-gray-600 mt-1">Affina le tue tecniche di vendita interagendo con un cliente virtuale.</p>
+    <div class="calculator-container">
+        <!-- Sezione Header con Titolo -->
+        <div class="text-center mb-6">
+            <h1 class="text-4xl font-bold text-white">Quality Host</h1>
         </div>
-    </header>
 
-    <main class="flex-grow container mx-auto p-4 max-w-5xl">
-        <div id="setup-screen" class="space-y-6 bg-white p-8 rounded-xl shadow-lg">
-            <div>
-                <h2 class="text-xl font-semibold">1. Imposta lo scenario</h2>
-                <p class="text-gray-500">Scegli le condizioni per la tua simulazione.</p>
-            </div>
+        <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-200">
+            <h2 class="text-2xl font-semibold mb-6 text-center">Calcolatore Interattivo di Rendimento</h2>
             
-            <div>
-                <label for="scenario" class="block text-sm font-medium text-gray-700">Scenario di vendita</label>
-                <select id="scenario" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
-                    <option value="Chiamata a freddo">Chiamata a freddo</option>
-                    <option value="Gestione obiezione sul prezzo">Gestione obiezione sul prezzo</option>
-                    <option value="Presentazione di un nuovo prodotto">Presentazione di un nuovo prodotto</option>
-                    <option value="Follow-up dopo una proposta">Follow-up dopo una proposta</option>
-                    <option value="Richiesta di un appuntamento">Richiesta di un appuntamento</option>
-                </select>
-            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
-            <div>
-                <label for="persona" class="block text-sm font-medium text-gray-700">Personalità del cliente IA</label>
-                <select id="persona" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
-                    <option value="Cliente Scettico">Cliente Scettico</option>
-                    <option value="Cliente Interessato ma Indeciso">Cliente Interessato ma Indeciso</option>
-                    <option value="Cliente Molto Occupato">Cliente Molto Occupato</option>
-                    <option value="Cliente Analitico (vuole dati e dettagli)">Cliente Analitico (vuole dati e dettagli)</option>
-                    <option value="Cliente Amichevole e Loquace">Cliente Amichevole e Loquace</option>
-                </select>
-            </div>
-
-            <div>
-                <label for="product" class="block text-sm font-medium text-gray-700">Descrivi brevemente il tuo prodotto/servizio</label>
-                <textarea id="product" rows="3" class="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" placeholder="Es: Un software CRM basato su cloud per piccole e medie imprese che automatizza le attività di vendita e marketing."></textarea>
-            </div>
-
-            <div>
-                <label class="block text-sm font-medium text-gray-700">Obiezioni del cliente (Opzionale)</label>
-                <div class="mt-1 flex space-x-2">
-                    <input type="file" id="objections-file" accept=".pdf" class="hidden"/>
-                    <label for="objections-file" class="w-full text-sm text-gray-500 p-2 border rounded-md cursor-pointer hover:bg-gray-50 text-center">Carica PDF con obiezioni</label>
-                    <button id="suggest-objections-btn" class="gemini-btn text-white font-bold py-2 px-4 rounded-lg text-sm">✨ Suggerisci Obiezioni</button>
-                </div>
-                <p id="file-status" class="text-xs text-gray-500 mt-1"></p>
-            </div>
-
-            <div class="text-right">
-                <button id="start-btn" class="bg-blue-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-transform transform hover:scale-105">
-                    Inizia Simulazione
-                </button>
-            </div>
-        </div>
-
-        <div id="simulation-screen" class="hidden">
-            <div class="bg-white p-6 rounded-xl shadow-lg">
-                <div class="border-b pb-4 mb-4">
-                     <div class="flex justify-between items-center">
-                        <h2 class="text-xl font-semibold">Simulazione in corso...</h2>
-                        <button id="end-simulation-btn" class="bg-red-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 text-sm">Termina e Analizza</button>
+                <!-- Colonna 1: Parametri Principali -->
+                <div class="space-y-4">
+                    <h3 class="text-lg font-semibold text-center border-b pb-2">Parametri Principali</h3>
+                    <div>
+                        <label for="investimento" class="block text-sm font-medium text-gray-700">Investimento Totale (€)</label>
+                        <input type="number" id="investimento" value="95220" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#A87B5A] focus:ring-[#A87B5A] sm:text-sm">
                     </div>
-                    <p class="text-sm text-gray-500 mt-2">
-                        <strong>Scenario:</strong> <span id="info-scenario"></span> | 
-                        <strong>Cliente:</strong> <span id="info-persona"></span>
-                    </p>
-                    <div class="mt-4">
-                        <label for="persuasion-bar" class="block text-sm font-medium text-gray-700 mb-1">Barra di Persuasione</label>
-                        <div id="persuasion-bar" class="w-full bg-gray-200 rounded-full h-4">
-                            <div id="persuasion-bar-inner" class="bg-green-500 h-4 rounded-full" style="width: 50%;"></div>
+                     <div>
+                        <label for="adr" class="block text-sm font-medium text-gray-700">Tariffa Media Giornaliera (€)</label>
+                        <input type="range" id="adr" min="10" max="1000" value="125" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                        <div class="text-right text-sm font-medium text-[#5A8A7B]"><span id="adrVal">125</span> €</div>
+                    </div>
+                    <div>
+                        <label for="occupazione" class="block text-sm font-medium text-gray-700">Tasso di Occupazione Previsto (%)</label>
+                        <input type="range" id="occupazione" min="0" max="100" value="65" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                        <div class="text-right text-sm font-medium text-[#5A8A7B]"><span id="occupazioneVal">65</span>%</div>
+                    </div>
+                     <div>
+                        <label for="periodoApertura" class="block text-sm font-medium text-gray-700">Periodo di Apertura (mesi)</label>
+                        <input type="range" id="periodoApertura" min="1" max="12" value="12" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                        <div class="text-right text-sm font-medium text-[#5A8A7B]"><span id="periodoAperturaVal">12</span> mesi</div>
+                    </div>
+                    <div>
+                        <label for="soggiornoMedio" class="block text-sm font-medium text-gray-700">Soggiorno Medio (giorni)</label>
+                        <input type="number" id="soggiornoMedio" value="3" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm">
+                    </div>
+                    <!-- Flag Multi-proprietà -->
+                    <div class="pt-4 border-t border-gray-200">
+                         <div class="flex items-center justify-between">
+                            <label for="multiProprietaToggle" class="text-sm font-medium text-gray-700">Gestisci Multi-Proprietà?</label>
+                            <div class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
+                                <input type="checkbox" name="multiProprietaToggle" id="multiProprietaToggle" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer"/>
+                                <label for="multiProprietaToggle" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"></label>
+                            </div>
+                        </div>
+                        <div id="multiProprietaSection" class="hidden mt-4">
+                            <label for="numeroProprieta" class="block text-sm font-medium text-gray-700">Numero di Proprietà</label>
+                            <input type="number" id="numeroProprieta" value="1" min="1" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm">
                         </div>
                     </div>
                 </div>
 
-                <div id="chat-container" class="h-96 overflow-y-auto flex flex-col space-y-4 pr-2">
-                    <!-- I messaggi della chat verranno inseriti qui -->
-                </div>
-                
-                 <div class="mt-6">
-                    <div id="win-loss-message" class="text-center p-4 mb-4 rounded-lg hidden"></div>
-                    <div class="flex justify-end mb-2">
-                         <button id="suggest-reply-btn" class="gemini-btn text-white font-bold py-2 px-4 rounded-lg text-sm">✨ Chiedi un suggerimento al Coach IA</button>
+                <!-- Colonna 2: Dettaglio Costi -->
+                <div class="space-y-6 lg:border-l lg:border-r lg:px-8">
+                    <!-- Costi Variabili -->
+                    <div>
+                        <h3 class="text-lg font-semibold mb-4 text-center border-b pb-2" id="costiVariabiliTitle">Costi Variabili (per proprietà)</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label for="commissioni" class="block text-sm font-medium text-gray-700">Commissioni OTA (%)</label>
+                                <input type="number" id="commissioni" value="15" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm">
+                            </div>
+                            <div>
+                                <label for="utenzeNotte" class="block text-sm font-medium text-gray-700">Costo Utenze / Notte (€)</label>
+                                <input type="number" id="utenzeNotte" value="15" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm">
+                            </div>
+                            <div>
+                                <label for="spesePuliziaOspite" class="block text-sm font-medium text-gray-700">Spese di Pulizia Ospite (€)</label>
+                                <input type="number" id="spesePuliziaOspite" value="50" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm">
+                            </div>
+                             <div>
+                                <label for="costoRealePulizia" class="block text-sm font-medium text-gray-700">Costo Reale Pulizia (€)</label>
+                                <input type="number" id="costoRealePulizia" value="30" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm">
+                            </div>
+                        </div>
+                        <!-- Property Manager -->
+                        <div class="mt-6 pt-4 border-t border-gray-200">
+                             <div class="flex items-center justify-between">
+                                <label for="pmToggle" class="text-sm font-medium text-gray-700">Presenza Property Manager?</label>
+                                <div class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
+                                    <input type="checkbox" name="pmToggle" id="pmToggle" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer"/>
+                                    <label for="pmToggle" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"></label>
+                                </div>
+                            </div>
+                            <div id="pmSection" class="hidden mt-4 space-y-4">
+                                <div>
+                                    <label for="pmCommission" class="block text-sm font-medium text-gray-700">Commissione PM (%)</label>
+                                    <input type="number" id="pmCommission" value="20" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm">
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="flex">
-                        <input type="text" id="user-input" class="flex-grow border-gray-300 rounded-l-lg focus:ring-blue-500 focus:border-blue-500" placeholder="Scrivi la tua risposta..." disabled>
-                        <button id="send-btn" class="bg-blue-600 text-white font-bold p-3 rounded-r-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" disabled>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-send"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
-                        </button>
+                    <!-- Costi Fissi -->
+                    <div>
+                        <h3 class="text-lg font-semibold mb-4 text-center border-b pb-2" id="costiFissiTitle">Costi Fissi Annuali</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label for="tari" class="block text-sm font-medium text-gray-700">Tari e Imu (€)</label>
+                                <input type="number" id="tari" value="300" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm">
+                            </div>
+                            <div>
+                                <label for="condominio" class="block text-sm font-medium text-gray-700">Condominio (€)</label>
+                                <input type="number" id="condominio" value="600" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm">
+                            </div>
+                            <div>
+                                <label for="manutenzione" class="block text-sm font-medium text-gray-700">Manutenzione (€)</label>
+                                <input type="number" id="manutenzione" value="500" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm">
+                            </div>
+                            <div>
+                                <label for="altriCostiFissi" class="block text-sm font-medium text-gray-700">Altri Costi Fissi (€)</label>
+                                <input type="number" id="altriCostiFissi" value="200" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm">
+                            </div>
+                        </div>
                     </div>
                 </div>
-                 <div id="loading-indicator" class="hidden text-center mt-2">
-                    <p class="text-gray-500 text-sm italic">Il cliente sta pensando...</p>
-                 </div>
-            </div>
-        </div>
-        
-        <div id="feedback-screen" class="hidden mt-6">
-             <div class="bg-white p-8 rounded-xl shadow-lg animate-fade-in">
-                <h2 class="text-2xl font-bold text-gray-900 mb-4">Analisi del Sales Coach <span class="text-blue-600">IA</span></h2>
-                 <div id="feedback-content" class="space-y-6 text-gray-700 leading-relaxed">
-                     <p class="text-center p-8">Analisi in corso... attendere prego.</p>
-                 </div>
-                 <div class="text-center mt-8 space-x-4">
-                     <button id="restart-btn" class="bg-gray-700 text-white font-bold py-2 px-6 rounded-lg hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
-                         Inizia una nuova simulazione
-                     </button>
-                     <button id="download-pdf-btn" class="hidden bg-green-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
-                        Scarica Report PDF
-                    </button>
-                 </div>
-            </div>
-        </div>
 
-    </main>
+                <!-- Colonna 3: Fisco e Riepilogo -->
+                <div class="space-y-6">
+                    <!-- Regime Fiscale -->
+                    <div>
+                        <h3 class="text-lg font-semibold mb-4 text-center border-b pb-2">Regime Fiscale</h3>
+                        <div class="grid grid-cols-3 gap-2 rounded-lg bg-gray-100 p-1">
+                            <input type="radio" name="tax_regime" id="cedolare" value="cedolare" class="hidden tax-radio" checked>
+                            <label for="cedolare" class="text-center text-sm p-2 rounded-md cursor-pointer border border-gray-200 transition">Cedolare Secca</label>
+                            
+                            <input type="radio" name="tax_regime" id="forfettario" value="forfettario" class="hidden tax-radio">
+                            <label for="forfettario" class="text-center text-sm p-2 rounded-md cursor-pointer border border-gray-200 transition">P.IVA Forfettaria</label>
+                            
+                            <input type="radio" name="tax_regime" id="ordinario" value="ordinario" class="hidden tax-radio">
+                            <label for="ordinario" class="text-center text-sm p-2 rounded-md cursor-pointer border border-gray-200 transition">P.IVA Ordinaria</label>
+                        </div>
+                        <div id="tax_params" class="mt-4 space-y-4">
+                            <div id="cedolare_params">
+                                <label for="aliquotaCedolare" class="block text-sm font-medium text-gray-700">Aliquota Cedolare Secca (%)</label>
+                                <input type="number" id="aliquotaCedolare" value="21" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm">
+                            </div>
+                            <div id="forfettario_params" class="hidden">
+                                 <div class="grid grid-cols-2 gap-4">
+                                     <div>
+                                        <label for="coeffRedditivita" class="block text-sm font-medium text-gray-700">Coeff. Redditività (%)</label>
+                                        <input type="number" id="coeffRedditivita" value="40" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm">
+                                    </div>
+                                    <div>
+                                        <label for="aliquotaForfettaria" class="block text-sm font-medium text-gray-700">Aliquota Sostitutiva (%)</label>
+                                        <input type="number" id="aliquotaForfettaria" value="5" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm">
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="ordinario_params" class="hidden">
+                                <label for="aliquotaIrpef" class="block text-sm font-medium text-gray-700">Aliquota Media IRPEF (%)</label>
+                                <input type="number" id="aliquotaIrpef" value="35" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm">
+                            </div>
+                        </div>
+                        <div id="forfettarioWarning" class="hidden mt-4 p-3 bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 text-sm">
+                            <strong>Attenzione:</strong> Il ricavo lordo totale supera la soglia di 85.000 €. Il regime forfettario potrebbe non essere applicabile.
+                        </div>
+                    </div>
+                    <!-- Riepilogo -->
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <h3 class="text-lg font-semibold mb-4 text-center border-b pb-2">Riepilogo Totale</h3>
+                        <div class="space-y-1">
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm font-medium text-gray-600">Ricavo Lordo Annuo:</span>
+                                <span id="ricavoLordo" class="text-md font-semibold text-gray-800"></span>
+                            </div>
+                             <div class="flex justify-between items-center">
+                                <span class="text-sm font-medium text-gray-600">Notti / Prenotazioni:</span>
+                                <span id="occupazioneCalcolata" class="text-md font-semibold text-gray-800"></span>
+                            </div>
+                            <div id="pmGuadagnoSection" class="hidden flex justify-between items-center">
+                                <span class="text-sm font-medium text-gray-600">Guadagno PM:</span>
+                                <span id="guadagnoPm" class="text-md font-semibold text-blue-600"></span>
+                            </div>
+                            <div id="marginePulizieSection" class="hidden flex justify-between items-center">
+                                <span class="text-sm font-medium text-gray-600">Margine Pulizie:</span>
+                                <span id="marginePulizie" class="text-md font-semibold text-green-600"></span>
+                            </div>
+                             <div class="flex justify-between items-center">
+                                <span id="dettaglioPulizieLabel" class="text-sm font-medium text-gray-600">Costo Pulizie:</span>
+                                <span id="dettaglioPulizieValore" class="text-md font-semibold text-red-600"></span>
+                            </div>
+                             <div class="flex justify-between items-center">
+                                <span class="text-sm font-medium text-gray-600">Totale Costi Operativi:</span>
+                                <span id="totaleCosti" class="text-md font-semibold text-red-600"></span>
+                            </div>
+                             <div class="flex justify-between items-center">
+                                <span class="text-sm font-medium text-gray-600">Tassazione Stimata:</span>
+                                <span id="tassazione" class="text-md font-semibold text-red-600"></span>
+                            </div>
+                        </div>
+                        <hr class="my-4">
+                        <div class="flex justify-between items-center">
+                            <span class="text-lg font-medium">Utile Netto Annuo:</span>
+                            <span id="utileNetto" class="text-2xl font-bold text-[#5A8A7B]"></span>
+                        </div>
+                        <div class="flex justify-between items-center mt-2">
+                            <span class="text-lg font-medium">ROI Stimato:</span>
+                            <span id="roi" class="text-2xl font-bold text-[#5A8A7B]"></span>
+                        </div>
+                         <div class="mt-4">
+                            <button id="generatePdfBtn" class="w-full bg-[#5A8A7B] text-white font-semibold py-2 px-4 rounded-lg shadow hover:bg-opacity-90 transition">
+                                Genera Report PDF
+                            </button>
+                        </div>
+                    </div>
+                </div>
 
-    <!-- Modal per la chiave API -->
-    <div id="api-key-modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-        <div class="relative top-20 mx-auto p-5 border w-full max-w-md shadow-lg rounded-md bg-white">
-            <div class="mt-3 text-center">
-                <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-yellow-100">
-                    <svg class="h-6 w-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-                </div>
-                <h3 class="text-lg leading-6 font-medium text-gray-900 mt-2">Manca la Chiave API</h3>
-                <div class="mt-2 px-7 py-3">
-                    <p class="text-sm text-gray-500">
-                        Per usare questo simulatore, devi inserire una Chiave API di Google AI. Puoi ottenerne una gratuitamente da Google AI Studio.
-                    </p>
-                </div>
-                <div class="items-center px-4 py-3">
-                    <button id="close-modal-btn" class="px-4 py-2 bg-blue-500 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300">
-                        Ho capito
-                    </button>
-                </div>
             </div>
         </div>
     </div>
 
-    <footer class="text-center py-4 text-sm text-gray-500">
-        Tutti di diritti riservati a Quality Host 
+    <!-- Sezione Footer -->
+    <footer class="text-center mt-8 mb-8 text-sm text-gray-300">
+        <p>Tutti i diritti sono riservati a QualityHost.</p>
     </footer>
 
+
     <script>
+    document.addEventListener('DOMContentLoaded', function () {
         const { jsPDF } = window.jspdf;
 
-        const setupScreen = document.getElementById('setup-screen');
-        const simulationScreen = document.getElementById('simulation-screen');
-        const feedbackScreen = document.getElementById('feedback-screen');
+        const allInputs = [
+            'investimento', 'adr', 'occupazione', 'soggiornoMedio', 'commissioni', 
+            'costoRealePulizia', 'utenzeNotte', 'tari', 'condominio', 'manutenzione', 
+            'altriCostiFissi', 'pmToggle', 'pmCommission', 'spesePuliziaOspite', 
+            'aliquotaCedolare', 'coeffRedditivita', 'aliquotaForfettaria', 'aliquotaIrpef',
+            'numeroProprieta', 'multiProprietaToggle', 'periodoApertura'
+        ].reduce((acc, id) => {
+            acc[id] = document.getElementById(id);
+            return acc;
+        }, {});
 
-        const startBtn = document.getElementById('start-btn');
-        const endSimulationBtn = document.getElementById('end-simulation-btn');
-        const sendBtn = document.getElementById('send-btn');
-        const restartBtn = document.getElementById('restart-btn');
-        const downloadPdfBtn = document.getElementById('download-pdf-btn');
-        const suggestObjectionsBtn = document.getElementById('suggest-objections-btn');
-        const suggestReplyBtn = document.getElementById('suggest-reply-btn');
+        const taxRadios = document.querySelectorAll('input[name="tax_regime"]');
+        const uiElements = {
+            adrVal: document.getElementById('adrVal'),
+            occupazioneVal: document.getElementById('occupazioneVal'),
+            periodoAperturaVal: document.getElementById('periodoAperturaVal'),
+            pmSection: document.getElementById('pmSection'),
+            multiProprietaSection: document.getElementById('multiProprietaSection'),
+            costiFissiTitle: document.getElementById('costiFissiTitle'),
+            cedolareParams: document.getElementById('cedolare_params'),
+            forfettarioParams: document.getElementById('forfettario_params'),
+            ordinarioParams: document.getElementById('ordinario_params'),
+            forfettarioWarning: document.getElementById('forfettarioWarning'),
+            ricavoLordo: document.getElementById('ricavoLordo'),
+            occupazioneCalcolata: document.getElementById('occupazioneCalcolata'),
+            pmGuadagnoSection: document.getElementById('pmGuadagnoSection'),
+            guadagnoPm: document.getElementById('guadagnoPm'),
+            marginePulizieSection: document.getElementById('marginePulizieSection'),
+            marginePulizie: document.getElementById('marginePulizie'),
+            dettaglioPulizieLabel: document.getElementById('dettaglioPulizieLabel'),
+            dettaglioPulizieValore: document.getElementById('dettaglioPulizieValore'),
+            totaleCosti: document.getElementById('totaleCosti'),
+            tassazione: document.getElementById('tassazione'),
+            utileNetto: document.getElementById('utileNetto'),
+            roi: document.getElementById('roi'),
+            generatePdfBtn: document.getElementById('generatePdfBtn')
+        };
         
-        const userInput = document.getElementById('user-input');
-        const chatContainer = document.getElementById('chat-container');
-        const loadingIndicator = document.getElementById('loading-indicator');
-        const feedbackContent = document.getElementById('feedback-content');
+        let lastResults = {};
 
-        const infoScenario = document.getElementById('info-scenario');
-        const infoPersona = document.getElementById('info-persona');
-        const persuasionBarInner = document.getElementById('persuasion-bar-inner');
-        const winLossMessage = document.getElementById('win-loss-message');
+        function formatCurrency(value) {
+            return value.toLocaleString('it-IT', { style: 'currency', currency: 'EUR' });
+        }
 
-        const apiKeyModal = document.getElementById('api-key-modal');
-        const closeModalBtn = document.getElementById('close-modal-btn');
+        function toggleVisibility() {
+            const isMulti = allInputs.multiProprietaToggle.checked;
+            uiElements.costiFissiTitle.textContent = `Costi Fissi Annuali ${isMulti ? '(Totali per l\'operazione)' : '(per proprietà)'}`;
+            document.querySelector('label[for="investimento"]').textContent = 'Investimento Totale (€)';
+
+            const selectedRegime = document.querySelector('input[name="tax_regime"]:checked').value;
+            uiElements.cedolareParams.classList.toggle('hidden', selectedRegime !== 'cedolare');
+            uiElements.forfettarioParams.classList.toggle('hidden', selectedRegime !== 'forfettario');
+            uiElements.ordinarioParams.classList.toggle('hidden', selectedRegime !== 'ordinario');
+            uiElements.pmSection.classList.toggle('hidden', !allInputs.pmToggle.checked);
+            uiElements.multiProprietaSection.classList.toggle('hidden', !isMulti);
+        }
         
-        const fileInput = document.getElementById('objections-file');
-        const fileStatus = document.getElementById('file-status');
+        function calculateROI() {
+            const values = Object.keys(allInputs).reduce((acc, id) => {
+                const el = allInputs[id];
+                acc[id] = (el.type === 'checkbox') ? el.checked : (parseFloat(el.value) || 0);
+                return acc;
+            }, {});
 
-        let conversationHistory = [];
-        let scenario, persona, product, objections;
-        let structuredFeedback = null;
-        let persuasionScore = 50; // Punteggio da 0 a 100
-        const WINNING_SCORE = 100;
-        const LOSING_SCORE = 0;
-        let gameOver = false;
+            const isMulti = values.multiProprietaToggle;
+            const numeroProprieta = isMulti && values.numeroProprieta >= 1 ? values.numeroProprieta : 1;
 
-        // --- INIZIO LOGICA API ---
-        const API_KEY = "AIzaSyA8N5ybnBghEzaoY3ilVZJ6V2KZJIX87Bo";
-        const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${API_KEY}`;
-        
-        // --- BLOCCO EVENT LISTENERS CORRETTO ---
-        fileInput.addEventListener('change', async (event) => {
-            const file = event.target.files[0];
-            if (!file) return;
+            uiElements.adrVal.textContent = values.adr;
+            uiElements.occupazioneVal.textContent = values.occupazione;
+            uiElements.periodoAperturaVal.textContent = values.periodoApertura;
+
+            const giorniDisponibili = Math.round(values.periodoApertura * 30.4);
+            const nottiPrenotateSingle = Math.round(giorniDisponibili * (values.occupazione / 100));
+            const numeroPrenotazioniSingle = (values.soggiornoMedio > 0) ? Math.round(nottiPrenotateSingle / values.soggiornoMedio) : 0;
             
-            fileStatus.textContent = `Caricamento "${file.name}"...`;
-            fileStatus.style.color = 'gray';
+            const ricavoSoggiornoSingle = nottiPrenotateSingle * values.adr;
+            const incassoPulizieOspiteSingle = numeroPrenotazioniSingle * values.spesePuliziaOspite;
+            const ricavoLordoSingle = ricavoSoggiornoSingle + incassoPulizieOspiteSingle;
 
-            try {
-                objections = await readPdfFile(file);
-                fileStatus.textContent = `File "${file.name}" caricato con successo.`;
-                fileStatus.style.color = 'green';
-            } catch (error) {
-                fileStatus.textContent = 'Errore: Impossibile leggere il file PDF.';
-                fileStatus.style.color = 'red';
-                objections = '';
-            }
-        });
+            const commissioniOtaSingle = ricavoLordoSingle * (values.commissioni / 100);
+            const costiRealiPulizieSingle = numeroPrenotazioniSingle * values.costoRealePulizia;
+            const utenzeSingle = nottiPrenotateSingle * values.utenzeNotte;
+            const costiFissi = values.tari + values.condominio + values.manutenzione + values.altriCostiFissi;
 
-        closeModalBtn.addEventListener('click', () => {
-            apiKeyModal.classList.add('hidden');
-        });
+            let guadagnoPmSingle = 0;
+            let marginePulizieProprietarioSingle = incassoPulizieOspiteSingle - costiRealiPulizieSingle;
+            
+            let utileLordoProprietario_before_fixed_single, baseImponibileTasseSingle;
 
-        startBtn.addEventListener('click', async () => {
-            if (!API_KEY) {
-                apiKeyModal.classList.remove('hidden');
-                return;
+            if (values.pmToggle) {
+                const quotaCommissionePm = (ricavoSoggiornoSingle - commissioniOtaSingle) * (values.pmCommission / 100);
+                guadagnoPmSingle = (quotaCommissionePm > 0 ? quotaCommissionePm : 0) + marginePulizieProprietarioSingle;
+                const ricavoDelProprietario = ricavoSoggiornoSingle - commissioniOtaSingle - quotaCommissionePm;
+                utileLordoProprietario_before_fixed_single = ricavoDelProprietario - utenzeSingle;
+                baseImponibileTasseSingle = ricavoDelProprietario > 0 ? ricavoDelProprietario : 0;
+            } else {
+                utileLordoProprietario_before_fixed_single = ricavoLordoSingle - (commissioniOtaSingle + costiRealiPulizieSingle + utenzeSingle);
+                baseImponibileTasseSingle = ricavoLordoSingle;
             }
             
-            scenario = document.getElementById('scenario').value;
-            persona = document.getElementById('persona').value;
-            product = document.getElementById('product').value || "un prodotto/servizio non specificato";
-
-            infoScenario.textContent = scenario;
-            infoPersona.textContent = persona;
-
-            setupScreen.classList.add('hidden');
-            simulationScreen.classList.remove('hidden');
+            const costiFissiDaSottrarre = isMulti ? costiFissi : (costiFissi * numeroProprieta);
+            const utileLordoProprietarioTotale = (utileLordoProprietario_before_fixed_single * numeroProprieta) - costiFissiDaSottrarre;
             
-            startConversation();
-        });
+            let tassazioneSingle = 0;
+            const selectedRegime = document.querySelector('input[name="tax_regime"]:checked').value;
+            const ricavoLordoTotale = ricavoLordoSingle * numeroProprieta;
+            uiElements.forfettarioWarning.classList.toggle('hidden', !(selectedRegime === 'forfettario' && ricavoLordoTotale > 85000));
 
-        sendBtn.addEventListener('click', handleUserMessage);
-        userInput.addEventListener('keyup', (event) => {
-            if (event.key === 'Enter') {
-                handleUserMessage();
-            }
-        });
-
-        endSimulationBtn.addEventListener('click', getFeedback);
-        restartBtn.addEventListener('click', () => {
-            window.location.reload();
-        });
-        downloadPdfBtn.addEventListener('click', generatePdfReport);
-        
-        suggestObjectionsBtn.addEventListener('click', async () => {
-            const currentProduct = document.getElementById('product').value;
-            if (!currentProduct.trim()) {
-                fileStatus.textContent = 'Per favore, descrivi prima il tuo prodotto.';
-                fileStatus.style.color = 'red';
-                return;
-            }
-
-            suggestObjectionsBtn.disabled = true;
-            suggestObjectionsBtn.textContent = '...';
-            fileStatus.textContent = '✨ Sto generando le obiezioni...';
-            fileStatus.style.color = 'purple';
-
-            const systemPrompt = "Sei un esperto di vendite e un cliente difficile. Basandoti sulla seguente descrizione del prodotto, elenca 3-4 obiezioni comuni che un cliente potrebbe sollevare. Rispondi solo con l'elenco delle obiezioni, separate da un a capo.";
-            const userPrompt = `Prodotto: ${currentProduct}`;
-
-            const suggested = await callGemini(systemPrompt, userPrompt);
-            objections = suggested;
-            
-            fileStatus.textContent = 'Obiezioni suggerite dall\'IA caricate!';
-            fileStatus.style.color = 'green';
-            suggestObjectionsBtn.disabled = false;
-            suggestObjectionsBtn.textContent = '✨ Suggerisci Obiezioni';
-        });
-
-        suggestReplyBtn.addEventListener('click', async () => {
-            suggestReplyBtn.disabled = true;
-            userInput.placeholder = "Il coach IA sta pensando a un suggerimento...";
-
-            const transcript = conversationHistory.map(item => `${item.role === 'user' ? 'Venditore' : 'Cliente'}: ${item.parts[0].text}`).join('\n');
-            const systemPrompt = "Sei un coach di vendita di livello mondiale. Analizza la conversazione seguente. Il venditore ha bisogno di aiuto. Suggerisci una risposta breve, efficace e professionale che il venditore possa usare adesso. Rispondi SOLO con il testo della risposta suggerita, senza virgolette o frasi come 'Potresti dire:'.";
-            const userPrompt = `Ecco la conversazione fino ad ora:\n---\n${transcript}\n---`;
-
-            const suggestion = await callGemini(systemPrompt, userPrompt);
-            userInput.value = suggestion;
-            userInput.placeholder = "Scrivi la tua risposta...";
-            suggestReplyBtn.disabled = false;
-            userInput.focus();
-        });
-
-
-        async function callGemini(systemPrompt, userPrompt, currentHistory = []) {
-            // Non permettere chiamate se il gioco è finito, tranne per il feedback
-            if (gameOver && !systemPrompt.includes('coach di vendita')) return;
-            const payload = {
-                contents: [
-                    ...currentHistory.map(item => ({
-                        role: item.role === 'user' ? 'user' : 'model',
-                        parts: [{ text: item.parts[0].text }]
-                    })),
-                    {
-                        role: 'user',
-                        parts: [{ text: userPrompt }]
+            switch (selectedRegime) {
+                case 'cedolare':
+                    tassazioneSingle = baseImponibileTasseSingle * (values.aliquotaCedolare / 100);
+                    break;
+                case 'forfettario':
+                    tassazioneSingle = (baseImponibileTasseSingle * (values.coeffRedditivita / 100)) * (values.aliquotaForfettaria / 100);
+                    break;
+                case 'ordinario':
+                    const utileTassabile = utileLordoProprietarioTotale / numeroProprieta;
+                    if (utileTassabile > 0) {
+                        tassazioneSingle = utileTassabile * (values.aliquotaIrpef / 100);
                     }
-                ],
-                systemInstruction: {
-                    parts: [{ text: systemPrompt }]
-                },
+                    break;
+            }
+
+            const tassazioneTotale = tassazioneSingle * numeroProprieta;
+            const utileNettoTotale = utileLordoProprietarioTotale - tassazioneTotale;
+            
+            const investimentoTotale = isMulti ? values.investimento : values.investimento * numeroProprieta;
+            const roi = (investimentoTotale > 0) ? (utileNettoTotale / investimentoTotale) * 100 : 0;
+            
+            const guadagnoPmTotaleUI = guadagnoPmSingle * numeroProprieta;
+            const marginePulizieTotaleUI = marginePulizieProprietarioSingle * numeroProprieta;
+            const costoRealePulizieTotaleUI = costiRealiPulizieSingle * numeroProprieta;
+
+            let totaleCostiVisibile;
+            if (isMulti) {
+                const costiVariabiliTotali = (commissioniOtaSingle + (values.pmToggle ? 0 : costiRealiPulizieSingle) + utenzeSingle) * numeroProprieta;
+                const pmCostTotal = values.pmToggle ? guadagnoPmTotaleUI : 0;
+                totaleCostiVisibile = costiVariabiliTotali + costiFissi + pmCostTotal;
+            } else {
+                totaleCostiVisibile = commissioniOtaSingle + (values.pmToggle ? 0 : costiRealiPulizieSingle) + utenzeSingle + costiFissi + (values.pmToggle ? guadagnoPmSingle : 0);
+            }
+            
+            lastResults = {
+                ricavoLordo: ricavoLordoTotale,
+                notti: nottiPrenotateSingle * numeroProprieta,
+                prenotazioni: numeroPrenotazioniSingle * numeroProprieta,
+                guadagnoPm: guadagnoPmTotaleUI,
+                marginePulizie: marginePulizieTotaleUI,
+                costoRealePulizie: costoRealePulizieTotaleUI,
+                totaleCosti: totaleCostiVisibile,
+                tassazione: tassazioneTotale,
+                utileNetto: utileNettoTotale,
+                roi: roi,
+                inputs: values // Salva anche gli input
             };
 
-            // --- NUOVA LOGICA DI RETRY CON EXPONENTIAL BACKOFF ---
-            const maxRetries = 3; // Prova fino a 3 volte
-            let delay = 1000; // Inizia con 1 secondo di attesa
 
-            for (let i = 0; i < maxRetries; i++) {
-                try {
-                    const response = await fetch(API_URL, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
-                    });
+            uiElements.ricavoLordo.textContent = formatCurrency(lastResults.ricavoLordo);
+            uiElements.occupazioneCalcolata.textContent = `${lastResults.notti.toFixed(0)} / ${lastResults.prenotazioni.toFixed(0)}`;
+            uiElements.totaleCosti.textContent = `- ${formatCurrency(lastResults.totaleCosti)}`;
+            uiElements.tassazione.textContent = `- ${formatCurrency(lastResults.tassazione)}`;
+            uiElements.utileNetto.textContent = formatCurrency(lastResults.utileNetto);
+            uiElements.roi.textContent = `${lastResults.roi.toFixed(2)}%`;
 
-                    if (response.ok) { // Se la chiamata ha successo
-                        const result = await response.json();
-                        if (result.candidates && result.candidates.length > 0) {
-                             return result.candidates[0].content.parts[0].text;
-                        }
-                        return "L'IA non ha fornito una risposta valida.";
-                    }
-                    
-                    // Se l'errore è 503 o simile, non è un errore "fatale", quindi proviamo di nuovo
-                    if (response.status === 503 || response.status === 429) {
-                        console.warn(`Tentativo ${i + 1} fallito con stato ${response.status}. Riprovo tra ${delay / 1000}s...`);
-                        await new Promise(resolve => setTimeout(resolve, delay));
-                        delay *= 2; // Raddoppia l'attesa per il prossimo tentativo
-                        continue; // Passa al prossimo tentativo
-                    }
-                    
-                    // Per altri errori (es. 400), lancia subito l'errore perché un retry non aiuterà
-                    throw new Error(`Errore API: ${response.status} ${response.statusText}`);
+            uiElements.pmGuadagnoSection.classList.toggle('hidden', !values.pmToggle);
+            uiElements.marginePulizieSection.classList.toggle('hidden', values.pmToggle);
 
-                } catch (error) {
-                    console.error(`Errore nel tentativo ${i + 1}:`, error);
-                     if (i === maxRetries - 1) { // Se è l'ultimo tentativo, mostra l'errore finale
-                         return "Mi scuso, ma sto riscontrando un problema tecnico e non posso rispondere ora. Controlla che la tua Chiave API sia corretta.";
-                     }
-                    await new Promise(resolve => setTimeout(resolve, delay));
-                    delay *= 2;
-                }
-            }
-            return "Si è verificato un errore dopo multipli tentativi. Riprova più tardi.";
-        }
-
-        async function evaluateSalespersonMove(transcript) {
-            const systemPrompt = "Sei un sales coach esperto che agisce come un giudice. Analizza l'ultima risposta del 'Venditore' nella trascrizione. Basandoti su tecniche di vendita efficaci (costruire rapporto, fare domande aperte, gestire obiezioni, creare valore), decidi se la propensione del cliente all'acquisto dovrebbe aumentare, diminuire o rimanere invariata. Rispondi ESCLUSIVAMENTE con una delle seguenti parole: 'AUMENTA', 'DIMINUISCI', 'INVARIATO'.";
-            const evaluation = await callGemini(systemPrompt, `Ecco la trascrizione:\n---\n${transcript}\n---`);
-            
-            if (evaluation.includes('AUMENTA')) {
-                persuasionScore = Math.min(WINNING_SCORE, persuasionScore + 15);
-            } else if (evaluation.includes('DIMINUISCI')) {
-                persuasionScore = Math.max(LOSING_SCORE, persuasionScore - 10);
-            }
-            updatePersuasionBar();
-        }
-
-        function updatePersuasionBar() {
-            persuasionBarInner.style.width = `${persuasionScore}%`;
-            if (persuasionScore > 66) {
-                persuasionBarInner.className = 'bg-green-500 h-4 rounded-full';
-            } else if (persuasionScore > 33) {
-                 persuasionBarInner.className = 'bg-yellow-500 h-4 rounded-full';
+            if (values.pmToggle) {
+                uiElements.guadagnoPm.textContent = `+ ${formatCurrency(lastResults.guadagnoPm)}`;
+                uiElements.dettaglioPulizieLabel.textContent = `Costo Reale Pulizie (a carico PM):`;
             } else {
-                 persuasionBarInner.className = 'bg-red-500 h-4 rounded-full';
+                uiElements.marginePulizie.textContent = `+ ${formatCurrency(lastResults.marginePulizie)}`;
+                uiElements.dettaglioPulizieLabel.textContent = `Costo Reale Pulizie:`;
             }
+            uiElements.dettaglioPulizieValore.textContent = `- ${formatCurrency(lastResults.costoRealePulizie)}`;
         }
         
-        async function readPdfFile(file) {
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onload = async function() {
-                    try {
-                        const typedarray = new Uint8Array(this.result);
-                        const pdf = await pdfjsLib.getDocument(typedarray).promise;
-                        let fullText = '';
-                        for (let i = 1; i <= pdf.numPages; i++) {
-                            const page = await pdf.getPage(i);
-                            const textContent = await page.getTextContent();
-                            const pageText = textContent.items.map(item => item.str).join(' ');
-                            fullText += pageText + ' ';
-                        }
-                        resolve(fullText.trim());
-                    } catch (error) {
-                        console.error('Errore durante la lettura del PDF:', error);
-                        reject('Impossibile leggere il file PDF.');
-                    }
-                };
-                reader.onerror = () => {
-                     reject('Errore file');
-                }
-                reader.readAsArrayBuffer(file);
-            });
-        }
-        
-        function addMessageToChat(sender, message) {
-            const bubble = document.createElement('div');
-            bubble.classList.add('chat-bubble', sender === 'user' ? 'user-bubble' : 'ai-bubble');
-            bubble.textContent = message;
-            chatContainer.appendChild(bubble);
-            chatContainer.scrollTop = chatContainer.scrollHeight;
-        }
-
-        async function handleUserMessage() {
-            if (gameOver) return;
-            const message = userInput.value.trim();
-            if (!message) return;
-
-            addMessageToChat('user', message);
-            conversationHistory.push({ role: 'user', parts: [{ text: message }] });
-            userInput.value = '';
-            setLoading(true);
-
-            const transcriptForEvaluation = conversationHistory.map(item => `${item.role === 'user' ? 'Venditore' : 'Cliente'}: ${item.parts[0].text}`).join('\n');
-            await evaluateSalespersonMove(transcriptForEvaluation);
-
-            if (persuasionScore >= WINNING_SCORE) {
-                handleWin();
-                return;
-            }
-            if (persuasionScore <= LOSING_SCORE) {
-                handleLoss();
-                return;
-            }
-            
-            let systemPrompt = `Sei un potenziale cliente di nome Alex. La tua personalità è: ${persona}. Il tuo attuale livello di interesse/propensione all'acquisto è ${persuasionScore} su 100. Modula la tua risposta in base a questo valore. Se il valore è alto (>66), sii più collaborativo e positivo. Se è basso (<33), sii più resistente o evasivo. Rispondi in modo realistico. Non rivelare mai di essere un'IA.`;
-
-            if (objections) {
-                systemPrompt += ` Ricorda di usare le obiezioni che ti sono state date, se pertinenti: '${objections}'.`;
-            }
-            
-            const aiResponse = await callGemini(systemPrompt, message, conversationHistory);
-            setLoading(false);
-            
-            addMessageToChat('ai', aiResponse);
-            conversationHistory.push({ role: 'model', parts: [{ text: aiResponse }] });
-        }
-        
-        function handleWin() {
-            gameOver = true;
-            const winText = "Ottimo lavoro! Mi hai convinto. Procediamo pure, mandami la proposta.";
-            addMessageToChat('ai', winText);
-            conversationHistory.push({ role: 'model', parts: [{ text: winText }] });
-            winLossMessage.textContent = 'OBIETTIVO RAGGIUNTO! Hai convinto il cliente.';
-            winLossMessage.className = 'text-center p-4 mb-4 rounded-lg bg-green-100 text-green-800';
-            winLossMessage.classList.remove('hidden');
-            setLoading(false);
-            userInput.disabled = true;
-            sendBtn.disabled = true;
-            suggestReplyBtn.disabled = true;
-        }
-
-        function handleLoss() {
-            gameOver = true;
-            const lossText = "Senti, ti ringrazio per il tempo ma non credo che questo faccia per me. Buona giornata.";
-            addMessageToChat('ai', lossText);
-            conversationHistory.push({ role: 'model', parts: [{ text: lossText }] });
-            winLossMessage.textContent = 'PERSUASIONE FALLITA. Il cliente ha perso interesse.';
-            winLossMessage.className = 'text-center p-4 mb-4 rounded-lg bg-red-100 text-red-800';
-            winLossMessage.classList.remove('hidden');
-            setLoading(false);
-            userInput.disabled = true;
-            sendBtn.disabled = true;
-            suggestReplyBtn.disabled = true;
-        }
-        
-        async function startConversation() {
-            conversationHistory = [];
-            structuredFeedback = null;
-            gameOver = false;
-            persuasionScore = 50;
-            updatePersuasionBar();
-            winLossMessage.classList.add('hidden');
-            downloadPdfBtn.classList.add('hidden');
-
-            let systemPrompt = `Sei un potenziale cliente. Il tuo nome è Alex. La tua personalità è: ${persona}. Stai partecipando a uno scenario di vendita di tipo '${scenario}' riguardo a questo prodotto: '${product}'. Il tuo obiettivo è rispondere al venditore in modo realistico, basandosi sulla tua personalità. Il tuo livello di interesse iniziale è 50 su 100. Sii conciso e diretto. Non rivelare mai di essere un'IA. Inizia tu la conversazione con una frase di apertura appropriata per lo scenario.`;
-            
-            if (objections) {
-                systemPrompt += ` Durante la conversazione, cerca di sollevare una o più delle seguenti obiezioni specifiche: '${objections}'.`;
-            }
-
-            setLoading(true);
-            const initialResponse = await callGemini(systemPrompt, "Inizia la conversazione.");
-            setLoading(false);
-            
-            conversationHistory.push({ role: 'model', parts: [{ text: initialResponse }] });
-            addMessageToChat('ai', initialResponse);
-            
-            userInput.disabled = false;
-            sendBtn.disabled = false;
-            userInput.focus();
-        }
-        
-        async function getFeedback() {
-             simulationScreen.classList.add('hidden');
-            feedbackScreen.classList.remove('hidden');
-
-            const transcript = conversationHistory.map(item => `${item.role === 'user' ? 'Venditore' : 'Cliente'}: ${item.parts[0].text}`).join('\n');
-            const feedbackPrompt = `Sei un coach di vendita di fama mondiale. Analizza la seguente trascrizione di un role play di vendita. Fornisci un feedback costruttivo, conciso e facile da capire in ITALIANO. Struttura il feedback in tre sezioni con dei titoli in grassetto: **Punti di Forza**, **Aree di Miglioramento** e **Suggerimenti Pratici**. Sii specifico nei tuoi consigli. Usa elenchi puntati per rendere il feedback più leggibile. Non aggiungere introduzioni o conclusioni superflue, vai dritto al punto.\n\nEcco la trascrizione:\n---\n${transcript}\n---`;
-            
-            const feedbackText = await callGemini(feedbackPrompt, "Analizza questa trascrizione.");
-            
-            const formattedFeedback = feedbackText
-                .replace(/\*\*(.*?)\*\*/g, '<h3 class="text-lg font-semibold text-gray-800 mt-4 mb-2">$1</h3>')
-                .replace(/\* (.*?)(?=\n\*|\n\n|$)/g, '<li class="ml-5 list-disc">$1</li>')
-                .replace(/(\r\n|\n|\r)/gm, '<br>')
-                .replace(/<br><li/g, '<li')
-                .replace(/<\/li><br>/g, '</li>');
-
-            feedbackContent.innerHTML = `<div class="prose max-w-none">${formattedFeedback.replace(/<br>/g, '\n').replace(/<\/li>\n/g, '</li>').replace(/\n<h3/g, '<h3')}</div>`;
-            
-            // Seconda chiamata per il feedback strutturato per il PDF
-            const detailedFeedbackPrompt = `Sei un sales coach esperto. Analizza la seguente trascrizione di vendita. Il tuo compito è fornire consigli specifici per ogni blocco della conversazione. Rispondi ESCLUSIVAMENTE con un oggetto JSON valido, senza testo introduttivo o conclusivo. L'oggetto JSON deve essere un array di oggetti. Ogni oggetto deve avere due chiavi: "dialogo" e "consiglio". Nella chiave "dialogo", inserisci una parte della conversazione (uno o due scambi tra Cliente e Venditore). Nella chiave "consiglio", inserisci un consiglio breve e pratico (massimo 2 frasi) relativo a quella specifica parte del dialogo. Ecco la trascrizione:\n---\n${transcript}\n---`;
-
-            const structuredFeedbackText = await callGemini(detailedFeedbackPrompt, "Analizza questa trascrizione per un report dettagliato.");
-            try {
-                structuredFeedback = JSON.parse(structuredFeedbackText);
-                downloadPdfBtn.classList.remove('hidden');
-            } catch (e) {
-                console.error("Impossibile analizzare il feedback strutturato:", e);
-                structuredFeedback = null;
-            }
-        }
-
-        function generatePdfReport() {
-            if (!structuredFeedback) {
-                alert("Il report dettagliato non è ancora pronto o si è verificato un errore.");
-                return;
-            }
-
+        function generatePDF() {
             const doc = new jsPDF();
-            
+            const { inputs, ...results } = lastResults;
+            let y = 20;
+
             doc.setFontSize(18);
-            doc.text("Report Analisi di Vendita", 14, 22);
-            doc.setFontSize(11);
-            doc.text(`Scenario: ${scenario}`, 14, 30);
-            doc.text(`Personalità Cliente: ${persona}`, 14, 36);
+            doc.text("Report di Simulazione - QualityHost", 105, y, { align: 'center' });
+            y += 15;
 
-            const tableColumn = ["Conversazione", "Consigli del Coach"];
-            const tableRows = [];
-
-            structuredFeedback.forEach(item => {
-                const row = [item.dialogo, item.consiglio];
-                tableRows.push(row);
-            });
-
-            doc.autoTable(tableColumn, tableRows, { startY: 50 });
-            doc.save('report-simulazione-vendita.pdf');
-        }
-        
-        function setLoading(isLoading) {
-            if (isLoading) {
-                loadingIndicator.classList.remove('hidden');
-                userInput.disabled = true;
-                sendBtn.disabled = true;
-                suggestReplyBtn.disabled = true;
-                userInput.classList.add('glowing-border');
-            } else {
-                loadingIndicator.classList.add('hidden');
-                // Non riabilitare se il gioco è finito
-                if (!gameOver) {
-                    userInput.disabled = false;
-                    sendBtn.disabled = false;
-                    suggestReplyBtn.disabled = false;
-                    userInput.focus();
-                }
-                userInput.classList.remove('glowing-border');
+            doc.setFontSize(14);
+            doc.text("Parametri Principali", 14, y);
+            y += 8;
+            doc.setFontSize(10);
+            doc.text(`Investimento Totale: ${formatCurrency(inputs.investimento * (inputs.multiProprietaToggle ? inputs.numeroProprieta : 1))}`, 14, y);
+            y += 6;
+            if (inputs.multiProprietaToggle) {
+                doc.text(`Numero di Proprietà: ${inputs.numeroProprieta}`, 14, y);
+                y += 6;
             }
+            doc.text(`Tariffa Media Giornaliera: ${formatCurrency(inputs.adr)}`, 14, y);
+            y += 6;
+            doc.text(`Tasso di Occupazione: ${inputs.occupazione}%`, 14, y);
+            y+= 6;
+            doc.text(`Periodo di Apertura: ${inputs.periodoApertura} mesi`, 14, y);
+            y += 6;
+            doc.text(`Soggiorno Medio: ${inputs.soggiornoMedio} giorni`, 14, y);
+            y += 12;
+
+            doc.setFontSize(14);
+            doc.text("Riepilogo Totale", 105, y, { align: 'center' });
+            y += 10;
+            
+            doc.setFontSize(12);
+            doc.text("Ricavi e Performance", 14, y);
+            y += 8;
+            doc.setFontSize(10);
+            doc.text(`Ricavo Lordo Annuo: ${formatCurrency(results.ricavoLordo)}`, 14, y);
+            y += 6;
+            doc.text(`Notti / Prenotazioni: ${results.notti.toFixed(0)} / ${results.prenotazioni.toFixed(0)}`, 14, y);
+            y += 10;
+
+            doc.setFontSize(12);
+            doc.text("Costi e Margini", 14, y);
+            y += 8;
+            doc.setFontSize(10);
+             if (inputs.pmToggle) {
+                doc.text(`Guadagno Property Manager: ${formatCurrency(results.guadagnoPm)}`, 14, y);
+                y += 6;
+            } else {
+                doc.text(`Margine Pulizie: ${formatCurrency(results.marginePulizie)}`, 14, y);
+                y += 6;
+            }
+            doc.text(`Totale Costi Operativi: ${formatCurrency(results.totaleCosti)}`, 14, y);
+            y+=10;
+
+            doc.setFontSize(12);
+            doc.text("Risultati Finali", 14, y);
+            y += 8;
+            doc.setFontSize(10);
+            doc.text(`Tassazione Stimata (${inputs.taxRegime}): ${formatCurrency(results.tassazione)}`, 14, y);
+            y += 8;
+            doc.setFont("helvetica", "bold");
+            doc.text(`Utile Netto Annuo: ${formatCurrency(results.utileNetto)}`, 14, y);
+            y += 8;
+            doc.text(`ROI Stimato: ${results.roi.toFixed(2)}%`, 14, y);
+            doc.setFont("helvetica", "normal");
+            
+            y += 20;
+            doc.setLineWidth(0.5);
+            doc.line(14, y, 196, y);
+            y += 10;
+            doc.setFontSize(8);
+            doc.text("Questo documento è una simulazione basata sui dati inseriti. I risultati sono stime e non costituiscono una garanzia di rendimento.", 105, y, { align: 'center' });
+
+
+            doc.save("Report_Simulazione_QualityHost.pdf");
         }
+
+
+        Object.values(allInputs).forEach(el => el.addEventListener('input', calculateROI));
+        taxRadios.forEach(radio => radio.addEventListener('change', () => {
+            toggleVisibility();
+            calculateROI();
+        }));
+        allInputs.pmToggle.addEventListener('change', () => {
+            toggleVisibility();
+            calculateROI();
+        });
+         allInputs.multiProprietaToggle.addEventListener('change', () => {
+            toggleVisibility();
+            calculateROI();
+        });
+        uiElements.generatePdfBtn.addEventListener('click', generatePDF);
+
+
+        toggleVisibility();
+        calculateROI();
+    });
     </script>
+
 </body>
 </html>
