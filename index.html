@@ -30,6 +30,13 @@
         .toggle-checkbox:checked + .toggle-label {
             background-color: #5A8A7B;
         }
+        /* Stili per la finestra modale */
+        .modal {
+            transition: opacity 0.25s ease;
+        }
+        .modal-content {
+            max-height: 80vh;
+        }
     </style>
 </head>
 <body>
@@ -248,8 +255,59 @@
 
     <!-- Sezione Footer -->
     <footer class="text-center mt-8 mb-8 text-sm text-gray-300">
+         <button id="openLegendBtn" class="bg-white/20 text-white font-semibold py-2 px-4 rounded-lg shadow hover:bg-white/30 transition mb-4">
+            Apri Legenda
+        </button>
         <p>Tutti i diritti sono riservati a QualityHost.</p>
     </footer>
+
+    <!-- Finestra Modale per la Legenda -->
+    <div id="legendModal" class="modal fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 hidden opacity-0">
+        <div class="modal-content bg-white w-full max-w-2xl rounded-lg shadow-xl overflow-y-auto p-6 relative">
+            <button id="closeLegendBtn" class="absolute top-4 right-4 text-gray-500 hover:text-gray-800">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+            <h2 class="text-2xl font-bold mb-4">Legenda dei Termini</h2>
+            <div class="text-gray-700 space-y-4">
+                <div>
+                    <h4 class="font-semibold text-gray-800">Ricavo Lordo Annuo</h4>
+                    <p>L'incasso totale generato, comprensivo sia del costo dei soggiorni sia delle spese di pulizia addebitate agli ospiti, prima di qualsiasi costo.</p>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-gray-800">Notti / Prenotazioni</h4>
+                    <p>Il numero totale di notti in cui la struttura è occupata e il numero totale di soggiorni (check-in) effettuati nel periodo di apertura selezionato.</p>
+                </div>
+                 <div>
+                    <h4 class="font-semibold text-gray-800">Guadagno PM</h4>
+                    <p>Il compenso totale del Property Manager, dato dalla somma della sua commissione di gestione e del suo margine (profitto o perdita) sulla gestione delle pulizie.</p>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-gray-800">Margine Pulizie</h4>
+                    <p>Il profitto o la perdita che generi dalla gestione delle pulizie. È calcolato come `(Spese Pulizia Ospite - Costo Reale Pulizia) * N. Prenotazioni`. Appare solo se non c'è un PM.</p>
+                </div>
+                 <div>
+                    <h4 class="font-semibold text-gray-800">Costo Reale Pulizie</h4>
+                    <p>Il costo totale che sostieni (o che sostiene il PM per te) per il servizio di pulizia durante l'anno.</p>
+                </div>
+                 <div>
+                    <h4 class="font-semibold text-gray-800">Totale Costi Operativi</h4>
+                    <p>La somma di tutte le spese annuali necessarie per l'attività: commissioni OTA, utenze, costi fissi e, se presente, il compenso del Property Manager.</p>
+                </div>
+                 <div>
+                    <h4 class="font-semibold text-gray-800">Tassazione Stimata</h4>
+                    <p>L'importo stimato delle tasse da pagare, calcolato in base al regime fiscale selezionato e alla relativa base imponibile.</p>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-gray-800">Utile Netto Annuo</h4>
+                    <p>Il guadagno reale, calcolato come `Ricavo Lordo Annuo - Totale Costi Operativi - Tassazione Stimata`.</p>
+                </div>
+                 <div>
+                    <h4 class="font-semibold text-gray-800">ROI Stimato</h4>
+                    <p>Il Ritorno sull'Investimento. Indica la redditività percentuale del tuo capitale investito, calcolato come `(Utile Netto Annuo / Investimento Totale) * 100`.</p>
+                </div>
+            </div>
+        </div>
+    </div>
 
 
     <script>
@@ -291,7 +349,10 @@
             tassazione: document.getElementById('tassazione'),
             utileNetto: document.getElementById('utileNetto'),
             roi: document.getElementById('roi'),
-            generatePdfBtn: document.getElementById('generatePdfBtn')
+            generatePdfBtn: document.getElementById('generatePdfBtn'),
+            legendModal: document.getElementById('legendModal'),
+            openLegendBtn: document.getElementById('openLegendBtn'),
+            closeLegendBtn: document.getElementById('closeLegendBtn'),
         };
         
         let lastResults = {};
@@ -421,22 +482,13 @@
             uiElements.roi.textContent = `${lastResults.roi.toFixed(2)}%`;
 
             uiElements.pmGuadagnoSection.classList.toggle('hidden', !values.pmToggle);
-            const marginePulizieEl = uiElements.marginePulizie;
+            uiElements.marginePulizieSection.classList.toggle('hidden', values.pmToggle);
+
             if (values.pmToggle) {
                 uiElements.guadagnoPm.textContent = `+ ${formatCurrency(lastResults.guadagnoPm)}`;
                 uiElements.dettaglioPulizieLabel.textContent = `Costo Reale Pulizie (a carico PM):`;
-                uiElements.marginePulizieSection.classList.add('hidden');
             } else {
-                uiElements.marginePulizieSection.classList.remove('hidden');
-                if (lastResults.marginePulizie >= 0) {
-                    marginePulizieEl.textContent = `+ ${formatCurrency(lastResults.marginePulizie)}`;
-                    marginePulizieEl.classList.remove('text-red-600');
-                    marginePulizieEl.classList.add('text-green-600');
-                } else {
-                    marginePulizieEl.textContent = `${formatCurrency(lastResults.marginePulizie)}`;
-                    marginePulizieEl.classList.remove('text-green-600');
-                    marginePulizieEl.classList.add('text-red-600');
-                }
+                uiElements.marginePulizie.textContent = `+ ${formatCurrency(lastResults.marginePulizie)}`;
                 uiElements.dettaglioPulizieLabel.textContent = `Costo Reale Pulizie:`;
             }
             uiElements.dettaglioPulizieValore.textContent = `- ${formatCurrency(lastResults.costoRealePulizie)}`;
@@ -535,6 +587,20 @@
             calculateROI();
         });
         uiElements.generatePdfBtn.addEventListener('click', generatePDF);
+        
+        uiElements.openLegendBtn.addEventListener('click', () => {
+            uiElements.legendModal.classList.remove('hidden');
+            setTimeout(() => uiElements.legendModal.classList.remove('opacity-0'), 10);
+        });
+         uiElements.closeLegendBtn.addEventListener('click', () => {
+            uiElements.legendModal.classList.add('opacity-0');
+            setTimeout(() => uiElements.legendModal.classList.add('hidden'), 250);
+        });
+        uiElements.legendModal.addEventListener('click', (e) => {
+            if (e.target === uiElements.legendModal) {
+                 uiElements.closeLegendBtn.click();
+            }
+        });
 
 
         toggleVisibility();
